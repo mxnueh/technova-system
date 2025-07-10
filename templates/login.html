@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ThingSpeak Login - Monitor de Datos</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #7c3aed 0%, #2563eb 50%, #4338ca 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            padding: 32px;
+            width: 100%;
+            max-width: 400px;
+            transition: all 0.3s ease;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+
+        .logo {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #7c3aed, #2563eb);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+        }
+
+        .logo i {
+            color: white;
+            font-size: 24px;
+        }
+
+        .title {
+            font-size: 32px;
+            font-weight: bold;
+            color: #1f2937;
+            margin: 0;
+        }
+
+        .subtitle {
+            font-size: 20px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        .description {
+            color: #6b7280;
+            font-size: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        .input-container {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            font-size: 16px;
+            pointer-events: none;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 12px 12px 40px;
+            border: 2px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        .form-input.error {
+            border-color: #ef4444;
+        }
+
+        .form-input:focus {
+            border-color: #7c3aed;
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #9ca3af;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 4px;
+        }
+
+        .password-toggle:hover {
+            color: #6b7280;
+        }
+
+        .error-message {
+            color: #ef4444;
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        .alert {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .alert.error {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+        }
+
+        .alert.success {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #16a34a;
+        }
+
+        .alert.info {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            color: #2563eb;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 12px 16px;
+            background: linear-gradient(135deg, #7c3aed, #2563eb);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-btn:hover:not(:disabled) {
+            background: linear-gradient(135deg, #6d28d9, #1d4ed8);
+            transform: scale(1.02);
+        }
+
+        .login-btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading-spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid white;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .demo-info {
+            margin-top: 24px;
+            padding: 16px;
+            background: #eff6ff;
+            border-radius: 8px;
+        }
+
+        .demo-info p {
+            color: #1e40af;
+            font-size: 14px;
+            text-align: center;
+            margin: 0;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 24px;
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 24px;
+                margin: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo-container">
+                <div class="logo">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h1 class="title">ThingSpeak</h1>
+            </div>
+            <h2 class="subtitle">Iniciar Sesión</h2>
+            <p class="description">Accede a tu monitor de datos</p>
+        </div>
+
+        <!-- Flask Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert {{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Alert for AJAX responses -->
+        <div id="alertContainer"></div>
+
+        <form id="loginForm" method="POST">
+            <div class="form-group">
+                <label class="form-label" for="username">Usuario</label>
+                <div class="input-container">
+                    <i class="fas fa-user input-icon"></i>
+                    <input 
+                        type="text" 
+                        id="username" 
+                        name="username"
+                        class="form-input" 
+                        placeholder="Ingresa tu usuario"
+                        autocomplete="username"
+                        required
+                    >
+                </div>
+                <div id="usernameError" class="error-message"></div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="password">Contraseña</label>
+                <div class="input-container">
+                    <i class="fas fa-lock input-icon"></i>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password"
+                        class="form-input" 
+                        placeholder="Ingresa tu contraseña"
+                        autocomplete="current-password"
+                        required
+                    >
+                    <button type="button" class="password-toggle" id="togglePassword">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+                <div id="passwordError" class="error-message"></div>
+            </div>
+
+            <button type="submit" id="loginBtn" class="login-btn">
+                <div id="loginSpinner" class="loading-spinner hidden"></div>
+                <span id="loginText">Iniciar Sesión</span>
+            </button>
+        </form>
+
+        <div class="demo-info">
+            <p><strong>Demo:</strong> Usuario: admin | Contraseña: admin123</p>
+        </div>
+
+        <div class="footer">
+            <p>¿Problemas para acceder? Contacta al administrador</p>
+        </div>
+    </div>
+
+    <script>
+        class FlaskLogin {
+            constructor() {
+                this.form = document.getElementById('loginForm');
+                this.usernameInput = document.getElementById('username');
+                this.passwordInput = document.getElementById('password');
+                this.togglePasswordBtn = document.getElementById('togglePassword');
+                this.loginBtn = document.getElementById('loginBtn');
+                this.loginText = document.getElementById('loginText');
+                this.loginSpinner = document.getElementById('loginSpinner');
+                this.alertContainer = document.getElementById('alertContainer');
+                
+                this.isLoading = false;
+                this.showPassword = false;
+                this.useAjax = true; // Set to false for traditional form submission
+                
+                this.init();
+            }
+
+            init() {
+                this.bindEvents();
+            }
+
+            bindEvents() {
+                // Toggle password visibility
+                this.togglePasswordBtn.addEventListener('click', () => {
+                    this.togglePasswordVisibility();
+                });
+
+                // Form submission
+                this.form.addEventListener('submit', (e) => {
+                    if (this.useAjax) {
+                        e.preventDefault();
+                        this.handleAjaxLogin();
+                    } else {
+                        this.setLoading(true);
+                        // Let the form submit normally
+                    }
+                });
+
+                // Clear errors on input
+                this.usernameInput.addEventListener('input', () => {
+                    this.clearFieldError('username');
+                });
+
+                this.passwordInput.addEventListener('input', () => {
+                    this.clearFieldError('password');
+                });
+            }
+
+            togglePasswordVisibility() {
+                this.showPassword = !this.showPassword;
+                const icon = this.togglePasswordBtn.querySelector('i');
+                
+                if (this.showPassword) {
+                    this.passwordInput.type = 'text';
+                    icon.className = 'fas fa-eye-slash';
+                } else {
+                    this.passwordInput.type = 'password';
+                    icon.className = 'fas fa-eye';
+                }
+            }
+
+            validateForm() {
+                let isValid = true;
+                const username = this.usernameInput.value.trim();
+                const password = this.passwordInput.value.trim();
+
+                // Clear previous errors
+                this.clearErrors();
+
+                // Validate username
+                if (!username) {
+                    this.setFieldError('username', 'El usuario es requerido');
+                    isValid = false;
+                }
+
+                // Validate password
+                if (!password) {
+                    this.setFieldError('password', 'La contraseña es requerida');
+                    isValid = false;
+                } else if (password.length < 6) {
+                    this.setFieldError('password', 'La contraseña debe tener al menos 6 caracteres');
+                    isValid = false;
+                }
+
+                return isValid;
+            }
+
+            setFieldError(field, message) {
+                const input = document.getElementById(field);
+                const errorElement = document.getElementById(field + 'Error');
+                
+                input.classList.add('error');
+                errorElement.textContent = message;
+            }
+
+            clearFieldError(field) {
+                const input = document.getElementById(field);
+                const errorElement = document.getElementById(field + 'Error');
+                
+                input.classList.remove('error');
+                errorElement.textContent = '';
+            }
+
+            clearErrors() {
+                this.clearFieldError('username');
+                this.clearFieldError('password');
+                this.hideAlert();
+            }
+
+            showAlert(message, type = 'error') {
+                const alertDiv = document.createElement('div');
+                alertDiv.className = `alert ${type}`;
+                alertDiv.textContent = message;
+                
+                this.alertContainer.innerHTML = '';
+                this.alertContainer.appendChild(alertDiv);
+            }
+
+            hideAlert() {
+                this.alertContainer.innerHTML = '';
+            }
+
+            setLoading(loading) {
+                this.isLoading = loading;
+                this.loginBtn.disabled = loading;
+                
+                if (loading) {
+                    this.loginText.textContent = 'Verificando...';
+                    this.loginSpinner.classList.remove('hidden');
+                } else {
+                    this.loginText.textContent = 'Iniciar Sesión';
+                    this.loginSpinner.classList.add('hidden');
+                }
+            }
+
+            async handleAjaxLogin() {
+                if (this.isLoading) return;
+                
+                if (!this.validateForm()) return;
+
+                this.setLoading(true);
+
+                try {
+                    const formData = {
+                        username: this.usernameInput.value.trim(),
+                        password: this.passwordInput.value.trim()
+                    };
+
+                    const response = await fetch('/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(formData)
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok && result.success) {
+                        this.showAlert('Login exitoso, redirigiendo...', 'success');
+                        // Redirect to dashboard after successful login
+                        setTimeout(() => {
+                            window.location.href = '/dashboard';
+                        }, 1000);
+                    } else {
+                        this.showAlert(result.message || 'Error en el login', 'error');
+                    }
+                } catch (error) {
+                    this.showAlert('Error de conexión. Intenta nuevamente.', 'error');
+                } finally {
+                    this.setLoading(false);
+                }
+            }
+        }
+
+        // Initialize the application when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            new FlaskLogin();
+        });
+    </script>
+</body>
+</html>

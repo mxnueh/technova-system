@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ThingSpeak Dashboard - Monitor de Niveles de Agua</title>
+    <title>Floppy Dashboard</title>
+    <link rel="icon" href="{{ url_for('static', filename='tech.jpg') }}" type="image/jpg">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
@@ -15,13 +16,17 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #0ea5e9 0%, #1e40af 50%, #3730a3 100%);
-            min-height: 100vh;
+            height: 100vh;
+            background: linear-gradient(135deg, #0a2818 0%, #1a3d2e 50%, #0f2922 100%);
+            position: relative;
+            min-height: 250vh;
             padding: 16px;
         }
 
         .container {
-            background: white;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 24px;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
             padding: 32px;
@@ -45,24 +50,26 @@
         }
 
         .username {
-            color: #6b7280;
+            color: rgba(255, 255, 255, 0.8);
             font-size: 14px;
         }
 
         .logout-btn {
-            background: #ef4444;
+            background: rgba(239, 68, 68, 0.8);
             color: white;
             border: none;
             padding: 8px 16px;
             border-radius: 8px;
             cursor: pointer;
             font-size: 14px;
-            transition: background 0.2s ease;
+            transition: all 0.2s ease;
             text-decoration: none;
+            backdrop-filter: blur(5px);
         }
 
         .logout-btn:hover {
-            background: #dc2626;
+            background: rgba(220, 38, 38, 0.9);
+            transform: translateY(-1px);
         }
 
         .logo-container {
@@ -75,7 +82,8 @@
         .logo {
             width: 48px;
             height: 48px;
-            background: linear-gradient(135deg, #0ea5e9, #1e40af);
+            background: rgba(34, 197, 94, 0.8);
+            backdrop-filter: blur(5px);
             border-radius: 8px;
             display: flex;
             align-items: center;
@@ -91,8 +99,9 @@
         .title {
             font-size: 32px;
             font-weight: bold;
-            color: #1f2937;
+            color: white;
             margin: 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         .channel-info {
@@ -101,12 +110,14 @@
             gap: 16px;
             margin-top: 16px;
             padding: 16px;
-            background: #f0f9ff;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 12px;
         }
 
         .channel-info p {
-            color: #6b7280;
+            color: rgba(255, 255, 255, 0.8);
             font-size: 14px;
             margin: 4px 0;
         }
@@ -120,56 +131,65 @@
         }
 
         .stat-card {
-            background: linear-gradient(135deg, #e0f2fe, #bfdbfe);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 12px;
             padding: 24px;
             text-align: center;
-            transition: transform 0.2s ease;
+            transition: all 0.3s ease;
         }
 
         .stat-card:hover {
             transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.15);
         }
 
         .stat-card.critical {
-            background: linear-gradient(135deg, #fef2f2, #fee2e2);
+            background: rgba(239, 68, 68, 0.2);
+            border-color: rgba(239, 68, 68, 0.4);
         }
 
         .stat-card.warning {
-            background: linear-gradient(135deg, #fefce8, #fef3c7);
+            background: rgba(245, 158, 11, 0.2);
+            border-color: rgba(245, 158, 11, 0.4);
         }
 
         .stat-card.normal {
-            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+            background: rgba(34, 197, 94, 0.2);
+            border-color: rgba(34, 197, 94, 0.4);
         }
 
         .stat-value {
             font-size: 36px;
             font-weight: bold;
-            color: #0ea5e9;
+            color: white;
             margin-bottom: 8px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         .stat-value.critical {
-            color: #dc2626;
+            color: #fca5a5;
         }
 
         .stat-value.warning {
-            color: #d97706;
+            color: #fcd34d;
         }
 
         .stat-value.normal {
-            color: #16a34a;
+            color: #86efac;
         }
 
         .stat-label {
             font-size: 14px;
-            color: #6b7280;
+            color: rgba(255, 255, 255, 0.8);
             font-weight: 500;
         }
 
         .chart-section {
-            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 12px;
             padding: 24px;
             margin-bottom: 24px;
@@ -190,7 +210,7 @@
         .chart-indicator {
             width: 16px;
             height: 16px;
-            background: #0ea5e9;
+            background: rgba(34, 197, 94, 0.8);
             border-radius: 2px;
             margin-right: 8px;
         }
@@ -198,7 +218,7 @@
         .chart-title {
             font-size: 20px;
             font-weight: 600;
-            color: #1f2937;
+            color: white;
             margin: 0;
         }
 
@@ -214,14 +234,16 @@
             cursor: pointer;
             font-size: 12px;
             transition: all 0.2s ease;
-            background: white;
-            color: #6b7280;
-            border: 1px solid #e5e7eb;
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(5px);
         }
 
         .chart-btn:hover, .chart-btn.active {
-            background: #0ea5e9;
+            background: rgba(34, 197, 94, 0.8);
             color: white;
+            transform: translateY(-1px);
         }
 
         .chart-container {
@@ -235,24 +257,23 @@
             margin-bottom: 20px;
             margin-top: 20px;
             font-size: 14px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .alert.error {
-            background: #fef2f2;
-            border: 1px solid #fecaca;
-            color: #dc2626;
+            background: rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
         }
 
         .alert.success {
-            background: #f0fdf4;
-            border: 1px solid #bbf7d0;
-            color: #16a34a;
+            background: rgba(34, 197, 94, 0.2);
+            color: #86efac;
         }
 
         .alert.info {
-            background: #eff6ff;
-            border: 1px solid #bfdbfe;
-            color: #2563eb;
+            background: rgba(59, 130, 246, 0.2);
+            color: #93c5fd;
         }
 
         .loading {
@@ -266,8 +287,8 @@
         }
 
         .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #0ea5e9;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid rgba(34, 197, 94, 0.8);
             border-radius: 50%;
             width: 40px;
             height: 40px;
@@ -290,24 +311,28 @@
         .data-table td {
             padding: 12px;
             text-align: left;
-            border-bottom: 1px solid #e5e7eb;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .data-table th {
-            background: #f9fafb;
+            background: rgba(255, 255, 255, 0.1);
             font-weight: 600;
-            color: #374151;
+            color: white;
+        }
+
+        .data-table td {
+            color: rgba(255, 255, 255, 0.8);
         }
 
         .data-table tr:hover {
-            background: #f0f9ff;
+            background: rgba(255, 255, 255, 0.1);
         }
 
         .refresh-btn {
             position: fixed;
             bottom: 24px;
             right: 24px;
-            background: #0ea5e9;
+            background: rgba(34, 197, 94, 0.8);
             color: white;
             border: none;
             border-radius: 50%;
@@ -315,19 +340,20 @@
             height: 56px;
             font-size: 20px;
             cursor: pointer;
-            box-shadow: 0 10px 20px rgba(14, 165, 233, 0.3);
+            box-shadow: 0 10px 20px rgba(34, 197, 94, 0.3);
             transition: all 0.2s ease;
+            backdrop-filter: blur(10px);
         }
 
         .refresh-btn:hover {
-            background: #0284c7;
+            background: rgba(34, 197, 94, 0.9);
             transform: scale(1.1);
         }
 
         .water-level-indicator {
             width: 100%;
             height: 20px;
-            background: #e5e7eb;
+            background: rgba(255, 255, 255, 0.2);
             border-radius: 10px;
             overflow: hidden;
             margin-top: 8px;
@@ -335,21 +361,51 @@
 
         .water-level-fill {
             height: 100%;
-            background: linear-gradient(90deg, #0ea5e9, #06b6d4);
+            background: linear-gradient(90deg, rgba(34, 197, 94, 0.8), rgba(34, 197, 94, 0.6));
             transition: width 0.5s ease;
             border-radius: 10px;
         }
 
         .water-level-fill.critical {
-            background: linear-gradient(90deg, #dc2626, #ef4444);
+            background: linear-gradient(90deg, rgba(239, 68, 68, 0.8), rgba(239, 68, 68, 0.6));
         }
 
         .water-level-fill.warning {
-            background: linear-gradient(90deg, #d97706, #f59e0b);
+            background: linear-gradient(90deg, rgba(245, 158, 11, 0.8), rgba(245, 158, 11, 0.6));
         }
 
         .water-level-fill.normal {
-            background: linear-gradient(90deg, #16a34a, #22c55e);
+            background: linear-gradient(90deg, rgba(34, 197, 94, 0.8), rgba(34, 197, 94, 0.6));
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            backdrop-filter: blur(5px);
+        }
+
+        .status-badge.critical {
+            background: rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+        }
+
+        .status-badge.warning {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fcd34d;
+        }
+
+        .status-badge.normal {
+            background: rgba(34, 197, 94, 0.2);
+            color: #86efac;
+        }
+
+        .access-status p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+            text-align: center;
+            margin-top: 16px;
         }
 
         @media (max-width: 768px) {
@@ -403,9 +459,6 @@
             </div>
             
             <div class="logo-container">
-                <div class="logo">
-                    <i class="fas fa-tint"></i>
-                </div>
                 <h1 class="title">Monitor de Niveles de Agua</h1>
             </div>
         </div>
@@ -450,14 +503,14 @@
         <!-- Loading Indicator -->
         <div class="loading" id="loadingIndicator">
             <div class="spinner"></div>
-            <p>Cargando datos de ThingSpeak...</p>
+            <p style="color: rgba(255, 255, 255, 0.8);">Cargando datos de ThingSpeak...</p>
         </div>
 
         <!-- Water Level Chart -->
         <div class="chart-section">
             <div class="chart-header">
                 <div class="chart-title-wrapper">
-                    <div class="chart-indicator" style="background: #0ea5e9;"></div>
+                    <div class="chart-indicator" style="background: rgba(34, 197, 94, 0.8);"></div>
                     <h3 class="chart-title">Nivel de Agua (m)</h3>
                 </div>
                 <div class="chart-controls">
@@ -476,7 +529,7 @@
         <div class="chart-section">
             <div class="chart-header">
                 <div class="chart-title-wrapper">
-                    <div class="chart-indicator" style="background: #10b981;"></div>
+                    <div class="chart-indicator" style="background: rgba(34, 197, 94, 0.8);"></div>
                     <h3 class="chart-title">Últimas Lecturas</h3>
                 </div>
             </div>
@@ -540,8 +593,8 @@
                     datasets: [{
                         label: 'Nivel de Agua (m)',
                         data: [],
-                        borderColor: '#0ea5e9',
-                        backgroundColor: 'rgba(14, 165, 233, 0.1)',
+                        borderColor: 'rgba(34, 197, 94, 0.8)',
+                        backgroundColor: 'rgba(34, 197, 94, 0.1)',
                         borderWidth: 2,
                         fill: true,
                         tension: 0.4,
@@ -562,19 +615,27 @@
                             beginAtZero: true,
                             title: {
                                 display: true,
-                                text: 'Nivel (metros)'
+                                text: 'Nivel (metros)',
+                                color: 'rgba(255, 255, 255, 0.8)'
                             },
                             grid: {
-                                color: 'rgba(0, 0, 0, 0.1)'
+                                color: 'rgba(255, 255, 255, 0.2)'
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.8)'
                             }
                         },
                         x: {
                             title: {
                                 display: true,
-                                text: 'Tiempo'
+                                text: 'Tiempo',
+                                color: 'rgba(255, 255, 255, 0.8)'
                             },
                             grid: {
-                                color: 'rgba(0, 0, 0, 0.1)'
+                                color: 'rgba(255, 255, 255, 0.2)'
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.8)'
                             }
                         }
                     }
@@ -858,29 +919,3 @@
             }
         }
     </script>
-
-    <style>
-        .status-badge {
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 500;
-        }
-
-        .status-badge.critical {
-            background: #fef2f2;
-            color: #dc2626;
-        }
-
-        .status-badge.warning {
-            background: #fefce8;
-            color: #d97706;
-        }
-
-        .status-badge.normal {
-            background: #f0fdf4;
-            color: #16a34a;
-        }
-    </style>
-</body>
-</html>

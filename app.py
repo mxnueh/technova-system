@@ -28,12 +28,18 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+
 @app.route('/')
 def home():
-    """Ruta principal - redirige al login si no está autenticado"""
-    if 'logged_in' in session and session['logged_in']:
-        return redirect(url_for('dashboard'))
-    return redirect(url_for('login'))
+    """Landing page principal"""
+    # Si quieres redirigir al dashboard si ya está logueado, descomenta la siguiente línea:
+    # if 'logged_in' in session and session['logged_in']:
+    #     return redirect(url_for('dashboard'))
+    return render_template('landing.html')
+
+@app.route('/landing')
+def landing_page():
+    return render_template('landing.html')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():

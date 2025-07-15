@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ThingSpeak Login - Monitor de Datos</title>
+    <title>Floppy | Inicio de Sesión</title>
+    <link rel="icon" href="{{ url_for('static', filename='tech.jpg') }}" type="image/jpg">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         * {
@@ -260,11 +261,11 @@
 <body>
     <div class="container">
         <div class="header">
-            <div class="logo-container">
+            <div class="logo-container" >
                 <div class="logo">
-                    <i class="fas fa-chart-line"></i>
+                    <a href="{{ url_for('landing_page') }}"><i class="fas fa-chart-line"></i></a>
                 </div>
-                <h1 class="title">Floppy</h1>
+                <h1 class="title"><a href="{{ url_for('landing_page') }}" style="text-decoration: none; color: black;">Floppy</a></h1>
             </div>
             <h2 class="subtitle">Iniciar Sesión</h2>
             <p class="description">Accede a tu monitor de datos</p>

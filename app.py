@@ -7,7 +7,7 @@ from datetime import datetime
 import pytz
 
 app = Flask(__name__)
-THINGSPEAK_URL, app.secret_key = 'https://thingspeak.mathworks.com/channels/3000780/field/1.json'  # Cambia esto por una clave secreta segura
+THINGSPEAK_URL, app.secret_key = 'https://thingspeak.mathworks.com/channels/3000780/field/1.json','https://thingspeak.mathworks.com/channels/3000780/field/1.json'  # Cambia esto por una clave secreta segura
 
 # Credenciales de usuario (en producción, usa una base de datos)
 USERS = {

@@ -9,126 +9,140 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <link rel="stylesheet" href="../static/css/dashboard.css" type="text/css">
 </head>
-<body>
+<body style="background-color: #000; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
     <!-- Sidebar Navegation -->
     <nav>
-
+        <!-- Perfil de Usuario Compacto -->
+        <div class="sidebar-profile">
+            <div class="profile-image">
+                <!-- Si hay una imagen de usuario disponible -->
+                <!-- <img src="{{ url_for('static', filename='img/user-avatar.jpg') }}" alt="Foto de perfil"> -->
+                <!-- Si no hay imagen, mostrar un icono -->
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="profile-info">
+                <div class="profile-name">Usuario Demo</div>
+                <div class="profile-title">Monitor de Nivel de Agua</div>
+            </div>
+        </div>
+        
+        <!-- Menú Principal -->
+        <ul>
+            <li><a href="/dashboard"><i class="fas fa-home"></i> <span>Inicio</span></a></li>
+        </ul>
+        
+        <!-- Categoría: Monitoreo -->
+        <div class="nav-category">Monitoreo</div>
+        <ul>
+            <li><a href="/water-level"><i class="fas fa-water"></i> <span>Nivel del Agua</span></a></li>
+            <li><a href="/history"><i class="fas fa-history"></i> <span>Historial</span></a></li>
+        </ul>
+        
+        <!-- Categoría: Cuenta -->
+        <div class="nav-category">Cuenta</div>
+        <ul>
+            <li><a href="/config"><i class="fas fa-cog"></i> <span>Configuración</span></a></li>
+            <li><a href="/logout"><i class="fas fa-sign-out-alt"></i> <span>Cerrar Sesión</span></a></li>
+        </ul>
     </nav>
 
-    <div class="container">
-        <div class="header">
-            <div class="user-info">
-                <span class="username">
-                    <i class="fas fa-user"></i> Usuario Demo
-                </span>
-                <a href="/logout" class="logout-btn">
-                    <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
-                </a>
+    <!-- Hero Section como página principal -->
+    <div style="margin-left: 250px; min-height: 100vh; padding: 60px 40px; text-align: center; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+        <div style="position: relative; z-index: 1; max-width: 1400px; width: 100%;">
+            <h1 style="font-size: 4rem; margin-bottom: 30px; color: white; text-shadow: 0 4px 8px rgba(0,0,0,0.7); font-weight: 700;">Sistema de Monitoreo Floppy</h1>
+            <p style="font-size: 1.6rem; max-width: 900px; margin: 0 auto 50px; color: rgba(255,255,255,0.95); line-height: 1.6;">Tecnología avanzada para el monitoreo de niveles de agua en tiempo real</p>
+            
+            <!-- Estado del Sistema -->
+            <div style="display: inline-block; background: rgba(255,255,255,0.2); backdrop-filter: blur(15px); padding: 25px 50px; border-radius: 60px; margin-bottom: 60px; border: 2px solid rgba(255,255,255,0.3);">
+                <span style="color: white; font-weight: bold; font-size: 1.4rem;">Estado del Sistema:</span>
+                <span style="background: #2ecc71; color: white; padding: 10px 25px; border-radius: 25px; font-weight: bold; font-size: 1.4rem; box-shadow: 0 4px 15px rgba(46, 204, 113, 0.4);">Activo</span>
             </div>
             
-            <div class="logo-container">
-                <h1 class="title">Monitor de Niveles de Agua</h1>
-            </div>
-        </div>
-
-        <!-- Channel Information -->
-        <div class="channel-info">
-            <p><strong>Canal:</strong> <span id="channelName">Sensor de Nivel de Agua</span></p>
-            <p><strong>ID:</strong> <span id="channelId">3000780</span></p>
-            <p><strong>Descripción:</strong> <span id="channelDesc">Monitoreo en tiempo real de niveles de agua</span></p>
-            <p><strong>Última actualización:</strong> <span id="lastUpdate">Cargando...</span></p>
-        </div>
-
-        <!-- Alert for connection status -->
-        <div class="alert info" id="connectionAlert" style="display: none;">
-            <i class="fas fa-info-circle"></i>
-            <span id="alertMessage">Conectando con ThingSpeak...</span>
-        </div>
-
-        <!-- Statistics Cards -->
-        <div class="stats-grid">
-            <div class="stat-card" id="currentLevelCard">
-                <div class="stat-value" id="currentLevel">-- m</div>
-                <div class="stat-label">Nivel Actual</div>
-                <div class="water-level-indicator">
-                    <div class="water-level-fill" id="levelIndicator" style="width: 0%"></div>
+            <!-- Tarjetas de acceso rápido -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 40px; max-width: 1400px; margin: 0 auto;">
+                <!-- Nivel Actual -->
+                <div style="background: rgba(255,255,255,0.15); border-radius: 20px; padding: 40px; box-shadow: 0 8px 25px rgba(0,0,0,0.3); transition: all 0.4s ease; cursor: pointer; border: 1px solid rgba(255,255,255,0.2);">
+                    <div style="display: flex; align-items: center; margin-bottom: 25px;">
+                        <div style="width: 70px; height: 70px; border-radius: 20px; background: linear-gradient(45deg, #3498db, #2980b9); display: flex; align-items: center; justify-content: center; margin-right: 25px; box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);">
+                            <i class="fas fa-tachometer-alt" style="font-size: 32px; color: white;"></i>
+                        </div>
+                        <h3 style="margin: 0; color: white; font-size: 1.8rem; font-weight: 600;">Nivel Actual</h3>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <p style="margin: 0; color: rgba(255,255,255,0.8); font-size: 1.2rem;">Nivel de Agua</p>
+                            <p style="margin: 10px 0 0; font-size: 2.8rem; font-weight: bold; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.3);" id="dashCurrentLevel">-- m</p>
+                        </div>
+                        <div style="width: 80px; height: 80px; border-radius: 50%; border: 4px solid #3498db; display: flex; align-items: center; justify-content: center; background: rgba(52, 152, 219, 0.1);">
+                            <span style="color: white; font-weight: bold; font-size: 1.8rem;" id="dashStatusIcon"><i class="fas fa-check"></i></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Monitoreo Detallado -->
+                <div style="background: rgba(255,255,255,0.15); border-radius: 20px; padding: 40px; box-shadow: 0 8px 25px rgba(0,0,0,0.3); transition: all 0.4s ease; cursor: pointer; border: 1px solid rgba(255,255,255,0.2);">
+                    <div style="display: flex; align-items: center; margin-bottom: 25px;">
+                        <div style="width: 70px; height: 70px; border-radius: 20px; background: linear-gradient(45deg, #2ecc71, #27ae60); display: flex; align-items: center; justify-content: center; margin-right: 25px; box-shadow: 0 4px 15px rgba(46, 204, 113, 0.4);">
+                            <i class="fas fa-water" style="font-size: 32px; color: white;"></i>
+                        </div>
+                        <h3 style="margin: 0; color: white; font-size: 1.8rem; font-weight: 600;">Monitoreo</h3>
+                    </div>
+                    <p style="color: rgba(255,255,255,0.9); margin-bottom: 25px; font-size: 1.3rem; line-height: 1.5;">Acceso al monitoreo de niveles de agua en tiempo real</p>
+                    <a href="/water-level" style="display: inline-block; padding: 15px 30px; background: linear-gradient(45deg, #2ecc71, #27ae60); color: white; text-decoration: none; border-radius: 35px; font-weight: bold; transition: all 0.3s; font-size: 1.2rem; box-shadow: 0 4px 15px rgba(46, 204, 113, 0.4);" >
+                        <i class="fas fa-chart-line"></i> Ver Detalles
+                    </a>
+                </div>
+                
+                <!-- Historial -->
+                <div style="background: rgba(255,255,255,0.15); border-radius: 20px; padding: 40px; box-shadow: 0 8px 25px rgba(0,0,0,0.3); transition: all 0.4s ease; cursor: pointer; border: 1px solid rgba(255,255,255,0.2);">
+                    <div style="display: flex; align-items: center; margin-bottom: 25px;">
+                        <div style="width: 70px; height: 70px; border-radius: 20px; background: linear-gradient(45deg, #9b59b6, #8e44ad); display: flex; align-items: center; justify-content: center; margin-right: 25px; box-shadow: 0 4px 15px rgba(155, 89, 182, 0.4);">
+                            <i class="fas fa-history" style="font-size: 32px; color: white;"></i>
+                        </div>
+                        <h3 style="margin: 0; color: white; font-size: 1.8rem; font-weight: 600;">Historial</h3>
+                    </div>
+                    <p style="color: rgba(255,255,255,0.9); margin-bottom: 25px; font-size: 1.3rem; line-height: 1.5;">Consulta el registro histórico de mediciones y eventos</p>
+                    <a href="/history" style="display: inline-block; padding: 15px 30px; background: linear-gradient(45deg, #9b59b6, #8e44ad); color: white; text-decoration: none; border-radius: 35px; font-weight: bold; transition: all 0.3s; font-size: 1.2rem; box-shadow: 0 4px 15px rgba(155, 89, 182, 0.4);">
+                        <i class="fas fa-database"></i> Ver Historial
+                    </a>
                 </div>
             </div>
-            <div class="stat-card" id="maxLevelCard">
-                <div class="stat-value" id="maxLevel">-- m</div>
-                <div class="stat-label">Nivel Máximo (24h)</div>
-            </div>
-            <div class="stat-card" id="minLevelCard">
-                <div class="stat-value" id="minLevel">-- m</div>
-                <div class="stat-label">Nivel Mínimo (24h)</div>
-            </div>
-            <div class="stat-card" id="statusCard">
-                <div class="stat-value" id="statusValue">--</div>
-                <div class="stat-label">Estado del Sistema</div>
-            </div>
-        </div>
-
-        <!-- Loading Indicator -->
-        <div class="loading" id="loadingIndicator">
-            <div class="spinner"></div>
-            <p style="color: rgba(255, 255, 255, 0.8);">Cargando datos de ThingSpeak...</p>
-        </div>
-
-        <!-- Water Level Chart -->
-        <div class="chart-section">
-            <div class="chart-header">
-                <div class="chart-title-wrapper">
-                    <div class="chart-indicator" style="background: rgba(34, 197, 94, 0.8);"></div>
-                    <h3 class="chart-title">Nivel de Agua (m)</h3>
-                </div>
-                <div class="chart-controls">
-                    <button class="chart-btn active" onclick="changeTimeRange('1h')">1h</button>
-                    <button class="chart-btn" onclick="changeTimeRange('6h')">6h</button>
-                    <button class="chart-btn" onclick="changeTimeRange('24h')">24h</button>
-                    <button class="chart-btn" onclick="changeTimeRange('7d')">7d</button>
+            
+            <!-- Información del Sistema -->
+            <div style="background: rgba(255,255,255,0.15); border-radius: 20px; padding: 35px; box-shadow: 0 8px 25px rgba(0,0,0,0.3); margin-top: 60px; text-align: left; border: 1px solid rgba(255,255,255,0.2);">
+                <h3 style="margin-top: 0; color: white; font-size: 1.6rem; border-bottom: 2px solid rgba(255,255,255,0.3); padding-bottom: 20px; font-weight: 600;">
+                    <i class="fas fa-info-circle" style="margin-right: 15px; color: #3498db;"></i> Información del Sistema
+                </h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; margin-top: 25px;">
+                    <div>
+                        <p style="color: rgba(255,255,255,0.7); margin: 0 0 8px; font-size: 1.1rem;">Canal</p>
+                        <p style="color: white; font-weight: bold; margin: 0; font-size: 1.3rem;" id="dashChannelName">Sensor de Nivel de Agua</p>
+                    </div>
+                    <div>
+                        <p style="color: rgba(255,255,255,0.7); margin: 0 0 8px; font-size: 1.1rem;">ID del Canal</p>
+                        <p style="color: white; font-weight: bold; margin: 0; font-size: 1.3rem;" id="dashChannelId">3000780</p>
+                    </div>
+                    <div>
+                        <p style="color: rgba(255,255,255,0.7); margin: 0 0 8px; font-size: 1.1rem;">Última Actualización</p>
+                        <p style="color: white; font-weight: bold; margin: 0; font-size: 1.3rem;" id="dashLastUpdate">Cargando...</p>
+                    </div>
+                    <div>
+                        <p style="color: rgba(255,255,255,0.7); margin: 0 0 8px; font-size: 1.1rem;">Estado de Conexión</p>
+                        <p style="color: #2ecc71; font-weight: bold; margin: 0; font-size: 1.3rem;">
+                            <i class="fas fa-circle" style="font-size: 12px; margin-right: 8px;"></i> Conectado
+                        </p>
+                    </div>
                 </div>
             </div>
-            <div class="chart-container">
-                <canvas id="waterLevelChart"></canvas>
-            </div>
-        </div>
-
-        <!-- Data Table -->
-        <div class="chart-section">
-            <div class="chart-header">
-                <div class="chart-title-wrapper">
-                    <div class="chart-indicator" style="background: rgba(34, 197, 94, 0.8);"></div>
-                    <h3 class="chart-title">Últimas Lecturas</h3>
-                </div>
-            </div>
-            <table class="data-table" id="dataTable">
-                <thead>
-                    <tr>
-                        <th>Fecha/Hora</th>
-                        <th>Nivel de Agua (m)</th>
-                        <th>Estado</th>
-                        <th>Entry ID</th>
-                    </tr>
-                </thead>
-                <tbody id="dataTableBody">
-                    <!-- Data will be populated by JavaScript -->
-                </tbody>
-            </table>
-        </div>
-
-        <div class="access-status">
-            <p>Última actualización: <span id="updateTime">--</span></p>
         </div>
     </div>
 
     <!-- Refresh Button -->
-    <button class="refresh-btn" onclick="refreshData()" title="Actualizar datos">
+    <button class="refresh-btn" onclick="refreshData()" title="Actualizar datos" style="position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(45deg, #3498db, #2980b9); border: none; color: white; font-size: 20px; cursor: pointer; box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4); transition: all 0.3s; z-index: 1000;" onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 6px 20px rgba(52, 152, 219, 0.6)'" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 15px rgba(52, 152, 219, 0.4)'">
         <i class="fas fa-sync-alt"></i>
     </button>
 
     <script>
-        let waterLevelChart;
-        let currentTimeRange = '24h';
         let thingSpeakData = [];
         let channelId = '3000780';
         let fieldNumber = 1;
@@ -145,78 +159,15 @@
 
         // Initialize the dashboard
         document.addEventListener('DOMContentLoaded', function() {
-            initializeChart();
             loadThingSpeakData();
             
             // Auto-refresh every 5 minutes
             setInterval(loadThingSpeakData, 5 * 60 * 1000);
         });
 
-        function initializeChart() {
-            const ctx = document.getElementById('waterLevelChart').getContext('2d');
-            waterLevelChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: [],
-                    datasets: [{
-                        label: 'Nivel de Agua (m)',
-                        data: [],
-                        borderColor: 'rgba(34, 197, 94, 0.8)',
-                        backgroundColor: 'rgba(34, 197, 94, 0.1)',
-                        borderWidth: 2,
-                        fill: true,
-                        tension: 0.4,
-                        pointRadius: 4,
-                        pointHoverRadius: 6
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Nivel (metros)',
-                                color: 'rgba(255, 255, 255, 0.8)'
-                            },
-                            grid: {
-                                color: 'rgba(255, 255, 255, 0.2)'
-                            },
-                            ticks: {
-                                color: 'rgba(255, 255, 255, 0.8)'
-                            }
-                        },
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Tiempo',
-                                color: 'rgba(255, 255, 255, 0.8)'
-                            },
-                            grid: {
-                                color: 'rgba(255, 255, 255, 0.2)'
-                            },
-                            ticks: {
-                                color: 'rgba(255, 255, 255, 0.8)'
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
         async function loadThingSpeakData() {
-            showLoading(true);
-            showAlert('info', 'Cargando datos de ThingSpeak...');
-
             try {
-                const resultsCount = getResultsCount(currentTimeRange);
+                const resultsCount = 50; // Obtener los últimos 50 resultados
                 const url = `https://api.thingspeak.com/channels/${channelId}/fields/${fieldNumber}.json?results=${resultsCount}`;
                 
                 const response = await fetch(url);
@@ -230,20 +181,13 @@
                 if (data.feeds && data.feeds.length > 0) {
                     processThingSpeakData(data);
                     updateDashboard();
-                    showAlert('success', 'Datos cargados correctamente');
                 } else {
-                    showAlert('error', 'No se encontraron datos en el canal');
+                    console.log('No se encontraron datos en el canal');
                 }
             } catch (error) {
                 console.error('Error loading ThingSpeak data:', error);
-                showAlert('error', 'Error al cargar datos: ' + error.message);
                 // Load sample data as fallback
                 loadSampleData();
-            } finally {
-                showLoading(false);
-                setTimeout(() => {
-                    hideAlert();
-                }, 3000);
             }
         }
 
@@ -258,9 +202,12 @@
 
             // Update channel info
             if (data.channel) {
-                document.getElementById('channelName').textContent = data.channel.name || 'Sensor de Nivel de Agua';
-                document.getElementById('channelId').textContent = data.channel.id || channelId;
-                document.getElementById('channelDesc').textContent = data.channel.description || 'Monitoreo en tiempo real de niveles de agua';
+                if (document.getElementById('dashChannelName')) {
+                    document.getElementById('dashChannelName').textContent = data.channel.name || 'Sensor de Nivel de Agua';
+                }
+                if (document.getElementById('dashChannelId')) {
+                    document.getElementById('dashChannelId').textContent = data.channel.id || channelId;
+                }
             }
         }
 
@@ -284,44 +231,46 @@
 
         function updateDashboard() {
             if (thingSpeakData.length === 0) return;
-
-            updateStatistics();
-            updateChart();
-            updateDataTable();
-            updateTimestamp();
-        }
-
-        function updateStatistics() {
+        
+            // Actualizar los elementos del dashboard
             const latest = thingSpeakData[thingSpeakData.length - 1];
             const currentLevel = latest.level;
             
-            // Calculate 24h min/max
-            const last24h = thingSpeakData.filter(item => 
-                item.timestamp >= new Date(Date.now() - 24 * 60 * 60 * 1000)
-            );
+            // Actualizar nivel actual en el dashboard
+            if (document.getElementById('dashCurrentLevel')) {
+                document.getElementById('dashCurrentLevel').textContent = `${currentLevel.toFixed(2)} m`;
+            }
             
-            const levels = last24h.map(item => item.level);
-            const maxLevel = Math.max(...levels);
-            const minLevel = Math.min(...levels);
+            // Actualizar información del canal en el dashboard
+            if (document.getElementById('dashChannelName')) {
+                document.getElementById('dashChannelName').textContent = document.getElementById('channelName').textContent;
+            }
+            if (document.getElementById('dashChannelId')) {
+                document.getElementById('dashChannelId').textContent = document.getElementById('channelId').textContent;
+            }
+            if (document.getElementById('dashLastUpdate')) {
+                document.getElementById('dashLastUpdate').textContent = document.getElementById('lastUpdate').textContent;
+            }
             
-            // Update values
-            document.getElementById('currentLevel').textContent = `${currentLevel.toFixed(2)} m`;
-            document.getElementById('maxLevel').textContent = `${maxLevel.toFixed(2)} m`;
-            document.getElementById('minLevel').textContent = `${minLevel.toFixed(2)} m`;
+            // Actualizar icono de estado según el nivel de agua
+            if (document.getElementById('dashStatusIcon')) {
+                const status = getWaterLevelStatus(currentLevel);
+                let icon = '<i class="fas fa-check"></i>';
+                let color = '#2ecc71';
+                
+                if (status.class === 'warning') {
+                    icon = '<i class="fas fa-exclamation"></i>';
+                    color = '#f39c12';
+                } else if (status.class === 'critical') {
+                    icon = '<i class="fas fa-exclamation-triangle"></i>';
+                    color = '#e74c3c';
+                }
+                
+                document.getElementById('dashStatusIcon').innerHTML = icon;
+                document.getElementById('dashStatusIcon').parentElement.style.borderColor = color;
+            }
             
-            // Update status and styling
-            const status = getWaterLevelStatus(currentLevel);
-            document.getElementById('statusValue').textContent = status.text;
-            
-            // Update card styling
-            updateCardStyling('currentLevelCard', 'currentLevel', status.class);
-            updateCardStyling('statusCard', 'statusValue', status.class);
-            
-            // Update water level indicator
-            const percentage = Math.min(100, (currentLevel / THRESHOLDS.CRITICAL_HIGH) * 100);
-            const indicator = document.getElementById('levelIndicator');
-            indicator.style.width = `${percentage}%`;
-            indicator.className = `water-level-fill ${status.class}`;
+            updateTimestamp();
         }
 
         function getWaterLevelStatus(level) {
@@ -336,120 +285,6 @@
             } else {
                 return { text: 'Normal', class: 'normal' };
             }
-        }
-
-        function updateCardStyling(cardId, valueId, statusClass) {
-            const card = document.getElementById(cardId);
-            const value = document.getElementById(valueId);
-            
-            // Remove existing classes
-            card.classList.remove('critical', 'warning', 'normal');
-            value.classList.remove('critical', 'warning', 'normal');
-            
-            // Add new class
-            card.classList.add(statusClass);
-            value.classList.add(statusClass);
-        }
-
-        function updateChart() {
-            const filteredData = getFilteredData(currentTimeRange);
-            
-            waterLevelChart.data.labels = filteredData.map(item => 
-                formatTimestamp(item.timestamp, currentTimeRange)
-            );
-            waterLevelChart.data.datasets[0].data = filteredData.map(item => item.level);
-            waterLevelChart.update();
-        }
-
-        function updateDataTable() {
-            const tbody = document.getElementById('dataTableBody');
-            tbody.innerHTML = '';
-            
-            const recentData = thingSpeakData.slice(-10).reverse();
-            
-            recentData.forEach(item => {
-                const status = getWaterLevelStatus(item.level);
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${item.timestamp.toLocaleString('es-ES')}</td>
-                    <td>${item.level.toFixed(2)} m</td>
-                    <td><span class="status-badge ${status.class}">${status.text}</span></td>
-                    <td>${item.entry_id}</td>
-                `;
-                tbody.appendChild(row);
-            });
-        }
-
-        function getFilteredData(timeRange) {
-            const now = new Date();
-            let cutoffTime;
-            
-            switch(timeRange) {
-                case '1h':
-                    cutoffTime = new Date(now.getTime() - 60 * 60 * 1000);
-                    break;
-                case '6h':
-                    cutoffTime = new Date(now.getTime() - 6 * 60 * 60 * 1000);
-                    break;
-                case '24h':
-                    cutoffTime = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-                    break;
-                case '7d':
-                    cutoffTime = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-                    break;
-                default:
-                    cutoffTime = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-            }
-            
-            return thingSpeakData.filter(item => item.timestamp >= cutoffTime);
-        }
-
-        function getResultsCount(timeRange) {
-            switch(timeRange) {
-                case '1h': return 60;
-                case '6h': return 100;
-                case '24h': return 200;
-                case '7d': return 500;
-                default: return 200;
-            }
-        }
-
-        function formatTimestamp(timestamp, timeRange) {
-            if (timeRange === '7d') {
-                return timestamp.toLocaleDateString('es-ES', { 
-                    month: 'short', 
-                    day: 'numeric',
-                    hour: '2-digit'
-                });
-            } else {
-                return timestamp.toLocaleTimeString('es-ES', { 
-                    hour: '2-digit', 
-                    minute: '2-digit' 
-                });
-            }
-        }
-
-        function changeTimeRange(range) {
-            currentTimeRange = range;
-            
-            // Update active button
-            document.querySelectorAll('.chart-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            event.target.classList.add('active');
-            
-            loadThingSpeakData();
-        }
-
-        function refreshData() {
-            const refreshBtn = document.querySelector('.refresh-btn');
-            refreshBtn.style.transform = 'rotate(360deg)';
-            
-            loadThingSpeakData();
-            
-            setTimeout(() => {
-                refreshBtn.style.transform = 'rotate(0deg)';
-            }, 500);
         }
 
         function showLoading(show) {
@@ -479,11 +314,23 @@
             const now = new Date();
             document.getElementById('lastUpdate').textContent = now.toLocaleString('es-ES');
             document.getElementById('updateTime').textContent = now.toLocaleTimeString('es-ES');
-        }
-
-        function logout() {
-            if (confirm('¿Está seguro que desea cerrar sesión?')) {
-                window.location.href = 'login.html';
+            
+            // Actualizar también la hora de verificación del sistema
+            if (document.getElementById('systemCheckTime')) {
+                document.getElementById('systemCheckTime').textContent = now.toLocaleTimeString('es-ES');
             }
         }
+
+        function refreshData() {
+            const refreshBtn = document.querySelector('.refresh-btn');
+            refreshBtn.style.transform = 'rotate(360deg)';
+            
+            loadThingSpeakData();
+            
+            setTimeout(() => {
+                refreshBtn.style.transform = 'rotate(0deg)';
+            }, 500);
+        }
     </script>
+</body>
+</html>

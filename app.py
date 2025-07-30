@@ -153,5 +153,18 @@ def format_timestamp(timestamp_str):
     except:
         return timestamp_str
 
+@app.route('/water-level')
+@login_required
+def water_level():
+    """Página de monitoreo de nivel de agua"""
+    return render_template('water-level.html', username=session.get('username'))
+
+@app.route('/history')
+@login_required
+def history():
+    """Página de historial"""
+    # Esta ruta se implementará más adelante
+    return render_template('dashboard.html', username=session.get('username'))
+
 if __name__ == '__main__':
     app.run(debug=True)

@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nivel de Agua | Technova System</title>
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <nav>
+        <!-- Perfil de usuario -->
+        <div class="sidebar-profile">
+            <div class="profile-image">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="profile-info">
+                <div class="profile-name">Demo User</div>
+                <div class="profile-title">Monitor de nivel de agua</div>
+            </div>
+        </div>
+        
+        <!-- Categoría: Principal -->
+        <ul>
+            <li><a href="/dashboard"><i class="fas fa-home"></i> <span>Inicio</span></a></li>
+        </ul>
+        
+        <!-- Categoría: Monitoreo -->
+        <div class="nav-category">Monitoreo</div>
+        <ul>
+            <li class="active"><a href="/water-level"><i class="fas fa-water"></i> <span>Nivel del Agua</span></a></li>
+            <li><a href="/history"><i class="fas fa-history"></i> <span>Historial</span></a></li>
+        </ul>
+        
+        <!-- Categoría: Cuenta -->
+        <div class="nav-category">Cuenta</div>
+        <ul>
+            <li><a href="/config"><i class="fas fa-cog"></i> <span>Configuración</span></a></li>
+            <li><a href="/logout"><i class="fas fa-sign-out-alt"></i> <span>Cerrar Sesión</span></a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <div class="header">
+            <div class="logo-container">
+                <h1 class="title">Monitor de Niveles de Agua</h1>
+            </div>
+        </div>
+
+        <!-- Channel Information -->
+        <div class="channel-info">
+            <p><strong>Canal:</strong> <span id="channelName">Sensor de Nivel de Agua</span></p>
+            <p><strong>ID:</strong> <span id="channelId">3000780</span></p>
+            <p><strong>Descripción:</strong> <span id="channelDesc">Monitoreo en tiempo real de niveles de agua</span></p>
+            <p><strong>Última actualización:</strong> <span id="lastUpdate">Cargando...</span></p>
+        </div>
+
+        <!-- Alert for connection status -->
+        <div class="alert info" id="connectionAlert" style="display: none;">
+            <i class="fas fa-info-circle"></i>
+            <span id="alertMessage">Conectando con ThingSpeak...</span>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="stats-grid">
+            <div class="stat-card" id="currentLevelCard">
+                <div class="stat-value" id="currentLevel">-- m</div>
+                <div class="stat-label">Nivel Actual</div>
+                <div class="water-level-indicator">
+                    <div class="water-level-fill" id="levelIndicator" style="width: 0%"></div>
+                </div>
+            </div>
+            <div class="stat-card" id="maxLevelCard">
+                <div class="stat-value" id="maxLevel">-- m</div>
+                <div class="stat-label">Nivel Máximo (24h)</div>
+            </div>
+            <div class="stat-card" id="minLevelCard">
+                <div class="stat-value" id="minLevel">-- m</div>
+                <div class="stat-label">Nivel Mínimo (24h)</div>
+            </div>
+            <div class="stat-card" id="statusCard">
+                <div class="stat-value" id="statusValue">--</div>
+                <div class="stat-label">Estado del Sistema</div>
+            </div>
+        </div>
+
+        <!-- Loading Indicator -->
+        <div class="loading" id="loadingIndicator">
+            <div class="spinner"></div>
+            <p style="color: rgba(255, 255, 255, 0.8);">Cargando datos de ThingSpeak...</p>
+        </div>
+
+        <!-- Water Level Chart -->
+        <div class="chart-section">
+            <div class="chart-header">
+                <div class="chart-title-wrapper">
+                    <div class="chart-indicator" style="background: rgba(34, 197, 94, 0.8);"></div>
+                    <h3 class="chart-title">Nivel de Agua (m)</h3>
+                </div>
+                <div class="chart-controls">
+                    <button class="chart-btn active" onclick="changeTimeRange('1h')">1h</button>
+                    <button class="chart-btn" onclick="changeTimeRange('6h')">6h</button>
+                    <button class="chart-btn" onclick="changeTimeRange('24h')">24h</button>
+                    <button class="chart-btn" onclick="changeTimeRange('7d')">7d</button>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="waterLevelChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Data Table -->
+        <div class="chart-section">
+            <div class="chart-header">
+                <div class="chart-title-wrapper">
+                    <div class="chart-indicator" style="background: rgba(34, 197, 94, 0.8);"></div>
+                    <h3 class="chart-title">Últimas Lecturas</h3>
+                </div>
+            </div>
+            <table class="data-table" id="dataTable">
+                <thead>
+                    <tr>
+                        <th>Fecha/Hora</th>
+                        <th>Nivel de Agua (m)</th>
+                        <th>Estado</th>
+                        <th>Entry ID</th>
+                    </tr>
+                </thead>
+                <tbody id="dataTableBody">
+                    <!-- Data will be populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="access-status">
+            <p>Última actualización: <span id="updateTime">--</span></p>
+        </div>
+    </div>
+
+    <!-- Refresh Button -->
+    <button class="refresh-btn" onclick="refreshData()" title="Actualizar datos">
+        <i class="fas fa-sync-alt"></i>
+    </button>
+
+    <script>
+        let waterLevelChart;
+        let currentTimeRange = '24h';
+        let thingSpeakData = [];
+        let channelId = '3000780';
+        let fieldNumber = 1;
+
+        // Water level thresholds (adjust these according to your needs)
+        const THRESHOLDS = {
+            CRITICAL_LOW: 0.5,
+            WARNING_LOW: 1.0,
+            NORMAL_MIN: 1.5,
+            NORMAL_MAX: 3.0,
+            WARNING_HIGH: 3.5,
+            CRITICAL_HIGH: 4.0
+        };
+
+        // Initialize the dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeChart();
+            loadThingSpeakData();
+            
+            // Auto-refresh every 5 minutes
+            setInterval(loadThingSpeakData, 5 * 60 * 1000);
+        });
+
+        function initializeChart() {
+            const ctx = document.getElementById('waterLevelChart').getContext('2d');
+            waterLevelChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Nivel de Agua (m)',
+                        data: [],
+                        borderColor: 'rgba(34, 197, 94, 0.8)',
+                        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Nivel (metros)',
+                                color: 'rgba(255, 255, 255, 0.8)'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.2)'
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.8)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Tiempo',
+                                color: 'rgba(255, 255, 255, 0.8)'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.2)'
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.8)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        async function loadThingSpeakData() {
+            showLoading(true);
+            showAlert('info', 'Cargando datos de ThingSpeak...');
+
+            try {
+                const resultsCount = getResultsCount(currentTimeRange);
+                const url = `https://api.thingspeak.com/channels/${channelId}/fields/${fieldNumber}.json?results=${resultsCount}`;
+                
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.feeds && data.feeds.length > 0) {
+                    processThingSpeakData(data);
+                    updateDashboard();
+                    showAlert('success', 'Datos cargados correctamente');
+                } else {
+                    showAlert('error', 'No se encontraron datos en el canal');
+                }
+            } catch (error) {
+                console.error('Error loading ThingSpeak data:', error);
+                showAlert('error', 'Error al cargar datos: ' + error.message);
+                // Load sample data as fallback
+                loadSampleData();
+            } finally {
+                showLoading(false);
+                setTimeout(() => {
+                    hideAlert();
+                }, 3000);
+            }
+        }
+
+        function processThingSpeakData(data) {
+            thingSpeakData = data.feeds
+                .filter(feed => feed.field1 !== null && feed.field1 !== undefined)
+                .map(feed => ({
+                    timestamp: new Date(feed.created_at),
+                    level: parseFloat(feed.field1),
+                    entry_id: feed.entry_id
+                }));
+
+            // Update channel info
+            if (data.channel) {
+                document.getElementById('channelName').textContent = data.channel.name || 'Sensor de Nivel de Agua';
+                document.getElementById('channelId').textContent = data.channel.id || channelId;
+                document.getElementById('channelDesc').textContent = data.channel.description || 'Monitoreo en tiempo real de niveles de agua';
+            }
+        }
+
+        function loadSampleData() {
+            // Fallback sample data when ThingSpeak is not available
+            const now = new Date();
+            thingSpeakData = [];
+
+            for (let i = 0; i < 50; i++) {
+                const timestamp = new Date(now.getTime() - (i * 30 * 60 * 1000)); // Every 30 minutes
+                const level = 2 + Math.sin(i * 0.1) * 0.8 + Math.random() * 0.3;
+
+                thingSpeakData.unshift({
+                    timestamp: timestamp,
+                    level: Math.round(level * 100) / 100,
+                    entry_id: i + 1
+                });
+            }
+            updateDashboard();
+        }
+
+        function updateDashboard() {
+            if (thingSpeakData.length === 0) return;
+
+            updateStatistics();
+            updateChart();
+            updateDataTable();
+            updateTimestamp();
+        }
+
+        function updateStatistics() {
+            const latest = thingSpeakData[thingSpeakData.length - 1];
+            const currentLevel = latest.level;
+            
+            // Calculate 24h min/max
+            const last24h = thingSpeakData.filter(item => 
+                item.timestamp >= new Date(Date.now() - 24 * 60 * 60 * 1000)
+            );
+            
+            const levels = last24h.map(item => item.level);
+            const maxLevel = Math.max(...levels);
+            const minLevel = Math.min(...levels);
+            
+            // Update values
+            document.getElementById('currentLevel').textContent = `${currentLevel.toFixed(2)} m`;
+            document.getElementById('maxLevel').textContent = `${maxLevel.toFixed(2)} m`;
+            document.getElementById('minLevel').textContent = `${minLevel.toFixed(2)} m`;
+            
+            // Update status and styling
+            const status = getWaterLevelStatus(currentLevel);
+            document.getElementById('statusValue').textContent = status.text;
+            
+            // Update card styling
+            updateCardStyling('currentLevelCard', 'currentLevel', status.class);
+            updateCardStyling('statusCard', 'statusValue', status.class);
+            
+            // Update water level indicator
+            const percentage = Math.min(100, (currentLevel / THRESHOLDS.CRITICAL_HIGH) * 100);
+            const indicator = document.getElementById('levelIndicator');
+            indicator.style.width = `${percentage}%`;
+            indicator.className = `water-level-fill ${status.class}`;
+        }
+
+        function getWaterLevelStatus(level) {
+            if (level <= THRESHOLDS.CRITICAL_LOW) {
+                return { text: 'Crítico Bajo', class: 'critical' };
+            } else if (level <= THRESHOLDS.WARNING_LOW) {
+                return { text: 'Bajo', class: 'warning' };
+            } else if (level >= THRESHOLDS.CRITICAL_HIGH) {
+                return { text: 'Crítico Alto', class: 'critical' };
+            } else if (level >= THRESHOLDS.WARNING_HIGH) {
+                return { text: 'Alto', class: 'warning' };
+            } else {
+                return { text: 'Normal', class: 'normal' };
+            }
+        }
+
+        function updateCardStyling(cardId, valueId, statusClass) {
+            const card = document.getElementById(cardId);
+            const value = document.getElementById(valueId);
+            
+            // Remove existing classes
+            card.classList.remove('critical', 'warning', 'normal');
+            value.classList.remove('critical', 'warning', 'normal');
+            
+            // Add new class
+            card.classList.add(statusClass);
+            value.classList.add(statusClass);
+        }
+
+        function updateChart() {
+            const filteredData = getFilteredData(currentTimeRange);
+            
+            waterLevelChart.data.labels = filteredData.map(item => 
+                formatTimestamp(item.timestamp, currentTimeRange)
+            );
+            waterLevelChart.data.datasets[0].data = filteredData.map(item => item.level);
+            waterLevelChart.update();
+        }
+
+        function updateDataTable() {
+            const tbody = document.getElementById('dataTableBody');
+            tbody.innerHTML = '';
+            
+            const recentData = thingSpeakData.slice(-10).reverse();
+            
+            recentData.forEach(item => {
+                const status = getWaterLevelStatus(item.level);
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.timestamp.toLocaleString('es-ES')}</td>
+                    <td>${item.level.toFixed(2)} m</td>
+                    <td><span class="status-badge ${status.class}">${status.text}</span></td>
+                    <td>${item.entry_id}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function getFilteredData(timeRange) {
+            const now = new Date();
+            let cutoffTime;
+            
+            switch(timeRange) {
+                case '1h':
+                    cutoffTime = new Date(now.getTime() - 60 * 60 * 1000);
+                    break;
+                case '6h':
+                    cutoffTime = new Date(now.getTime() - 6 * 60 * 60 * 1000);
+                    break;
+                case '24h':
+                    cutoffTime = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+                    break;
+                case '7d':
+                    cutoffTime = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                    break;
+                default:
+                    cutoffTime = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+            }
+            
+            return thingSpeakData.filter(item => item.timestamp >= cutoffTime);
+        }
+
+        function getResultsCount(timeRange) {
+            switch(timeRange) {
+                case '1h': return 60;
+                case '6h': return 100;
+                case '24h': return 200;
+                case '7d': return 500;
+                default: return 200;
+            }
+        }
+
+        function formatTimestamp(timestamp, timeRange) {
+            if (timeRange === '7d') {
+                return timestamp.toLocaleDateString('es-ES', { 
+                    month: 'short', 
+                    day: 'numeric',
+                    hour: '2-digit'
+                });
+            } else {
+                return timestamp.toLocaleTimeString('es-ES', { 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                });
+            }
+        }
+
+        function changeTimeRange(range) {
+            currentTimeRange = range;
+            
+            // Update active button
+            document.querySelectorAll('.chart-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            loadThingSpeakData();
+        }
+
+        function refreshData() {
+            const refreshBtn = document.querySelector('.refresh-btn');
+            refreshBtn.style.transform = 'rotate(360deg)';
+            
+            loadThingSpeakData();
+            
+            setTimeout(() => {
+                refreshBtn.style.transform = 'rotate(0deg)';
+            }, 500);
+        }
+
+        function showLoading(show) {
+            const loading = document.getElementById('loadingIndicator');
+            if (show) {
+                loading.classList.add('active');
+            } else {
+                loading.classList.remove('active');
+            }
+        }
+
+        function showAlert(type, message) {
+            const alert = document.getElementById('connectionAlert');
+            const alertMessage = document.getElementById('alertMessage');
+            
+            alert.className = `alert ${type}`;
+            alertMessage.textContent = message;
+            alert.style.display = 'block';
+        }
+
+        function hideAlert() {
+            const alert = document.getElementById('connectionAlert');
+            alert.style.display = 'none';
+        }
+
+        function updateTimestamp() {
+            const now = new Date();
+            document.getElementById('lastUpdate').textContent = now.toLocaleString('es-ES');
+            document.getElementById('updateTime').textContent = now.toLocaleTimeString('es-ES');
+        }
+    </script>
+</body>
+</html>

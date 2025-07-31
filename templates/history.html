@@ -24,18 +24,18 @@
         
         <!-- Categoría: Principal -->
         <ul>
-            <li><a href="/dashboard"><i class="fas fa-home"></i><span>Inicio</span></a></li>
+            <li><a href="/dashboard"><i class="fas fa-home"></i> <span>Inicio</span></a></li>
         </ul>
         
         <!-- Categoría: Monitoreo -->
         <div class="nav-category">Monitoreo</div>
         <ul>
-            <li class="active"><a href="/water-level" style="background: rgba(255, 255, 255, 0.1); color: white; border-left: 3px solid rgba(34, 197, 94, 0.8);"><i class="fas fa-water"></i> <span>Nivel del Agua</span></a></li>
+            <li class="active"><a href="/water-level"><i class="fas fa-water"></i> <span>Nivel del Agua</span></a></li>
         </ul>
 
         <!-- Separandolo del ul de arriba -->
         <ul>
-            <li><a href="/history"><i class="fas fa-history"></i> <span>Historial</span></a></li>
+            <li><a href="/history" style="background: rgba(255, 255, 255, 0.1); color: white; border-left: 3px solid rgba(34, 197, 94, 0.8);"><i class="fas fa-history"></i> <span>Historial</span></a></li>
         </ul>
         
         <!-- Categoría: Cuenta -->
@@ -146,12 +146,6 @@
             <p>Última actualización: <span id="updateTime">--</span></p>
         </div>
     </div>
-
-    <!-- Refresh Button 
-    <button class="refresh-btn" onclick="refreshData()" title="Actualizar datos">
-        <i class="fas fa-sync-alt"></i>
-    </button> -->
-
     <script>
         let waterLevelChart;
         let currentTimeRange = '24h';
@@ -335,19 +329,8 @@
             document.getElementById('maxLevel').textContent = `${maxLevel.toFixed(2)} m`;
             document.getElementById('minLevel').textContent = `${minLevel.toFixed(2)} m`;
             
-            // Check if system is inactive (all values are 0)
-            const isInactive = checkIfSystemInactive(thingSpeakData);
-            
             // Update status and styling
-            let status;
-            if (isInactive) {
-                status = { text: 'Inactivo', class: 'critical' };
-                // Update connection status in alert
-                showAlert('error', 'Sistema desconectado: Los sensores están apagados');
-            } else {
-                status = getWaterLevelStatus(currentLevel);
-            }
-            
+            const status = getWaterLevelStatus(currentLevel);
             document.getElementById('statusValue').textContent = status.text;
             
             // Update card styling
@@ -359,12 +342,6 @@
             const indicator = document.getElementById('levelIndicator');
             indicator.style.width = `${percentage}%`;
             indicator.className = `water-level-fill ${status.class}`;
-        }
-        
-        function checkIfSystemInactive(data) {
-            // Check if all recent readings are 0
-            const recentData = data.slice(-10); // Check last 10 readings
-            return recentData.every(item => item.level === 0);
         }
 
         function getWaterLevelStatus(level) {

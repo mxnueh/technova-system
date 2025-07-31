@@ -6,11 +6,12 @@ box-sizing: border-box;
 
 body {
 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-height: 100vh;
 background: linear-gradient(135deg, #0a2818 0%, #1a3d2e 50%, #0f2922 100%);
 position: relative;
-min-height: 115vh;
 padding: 16px;
+display: flex;
+overflow-x: hidden;
+overflow-y: auto;
 }
 
 .container {
@@ -21,7 +22,8 @@ border-radius: 24px;
 box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 padding: 32px;
 max-width: 1200px;
-margin: 0 auto;
+margin: 0 auto 0 270px; /* Ajustado para centrar horizontalmente manteniendo el margen izquierdo */
+overflow-y: auto;
 }
 
 .header {
@@ -300,7 +302,7 @@ margin-top: 16px;
 .data-table th,
 .data-table td {
 padding: 12px;
-text-align: left;
+text-align: center;
 border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
 
@@ -333,11 +335,42 @@ cursor: pointer;
 box-shadow: 0 10px 20px rgba(34, 197, 94, 0.3);
 transition: all 0.2s ease;
 backdrop-filter: blur(10px);
+z-index: 999;
 }
 
 .refresh-btn:hover {
 background: rgba(34, 197, 94, 0.9);
 transform: scale(1.1);
+}
+
+@media (max-width: 480px) {
+    .refresh-btn {
+        bottom: 100px;
+        right: 20px;
+        width: 50px;
+        height: 50px;
+        font-size: 16px;
+        z-index: 1002; /* Mayor que la barra de navegación */
+    }
+}
+
+/* Ajustes para dispositivos muy pequeños */
+@media (max-width: 380px) {
+    div[style*="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));"] {
+        grid-template-columns: 1fr !important;
+    }
+    
+    div[style*="display: inline-block; background: rgba(255,255,255,0.2); backdrop-filter: blur(15px); padding: 25px 50px;"] {
+        padding: 15px 25px !important;
+    }
+    
+    h1[style*="font-size: 2.5rem;"] {
+        font-size: 1.8rem !important;
+    }
+    
+    p[style*="font-size: 1.2rem;"] {
+        font-size: 1rem !important;
+    }
 }
 
 .water-level-indicator {
@@ -399,40 +432,88 @@ margin-top: 16px;
 }
 
 @media (max-width: 768px) {
-.container {
-    padding: 16px;
-}
+    html {
+        padding-bottom: 80px;
+    }
 
-.header {
-    position: relative;
-}
+    .container {
+        padding: 16px;
+        margin-left: 80px;
+        width: calc(100% - 100px);
+        min-height: calc(100vh - 20px);
+    }
 
-.user-info {
-    position: static;
-    justify-content: center;
-    margin-bottom: 16px;
-}
+    .header {
+        position: relative;
+    }
 
-.stats-grid {
-    grid-template-columns: 1fr;
-}
+    .user-info {
+        position: static;
+        justify-content: center;
+        margin-bottom: 16px;
+    }
 
-.stat-value {
-    font-size: 28px;
-}
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
 
-.title {
-    font-size: 24px;
-}
+    .stat-card {
+        padding: 15px;
+    }
 
-.chart-header {
-    flex-direction: column;
-    gap: 16px;
-}
+    .stat-value {
+        font-size: 28px;
+    }
 
-.data-table {
-    font-size: 14px;
-}
+    .title {
+        font-size: 24px;
+    }
+
+    .chart-header {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .data-table {
+        font-size: 14px;
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .data-table th, .data-table td {
+        padding: 8px;
+    }
+
+    /* Ajuste para el hero section */
+    div[style*="margin-left: 250px"] {
+        margin-left: 0 !important;
+        padding: 40px 20px !important;
+    }
+
+    /* Ajuste para las tarjetas de acceso rápido */
+    div[style*="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));"] {
+        grid-template-columns: 1fr !important;
+        gap: 20px !important;
+    }
+
+    /* Ajuste para las tarjetas individuales */
+    div[style*="background: rgba(255,255,255,0.15); border-radius: 20px; padding: 40px;"] {
+        padding: 25px !important;
+    }
+
+    /* Ajuste para la sección de información del sistema */
+    div[style*="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));"] {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 15px !important;
+    }
+
+    /* Ajuste para el contenedor de información del sistema */
+    div[style*="background: rgba(255,255,255,0.15); border-radius: 20px; padding: 35px;"] {
+        padding: 20px !important;
+        margin-top: 30px !important;
+    }
 }
 
 /* Estilos para la barra lateral (sidebar) */
@@ -451,6 +532,8 @@ nav {
     box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
     display: flex;
     flex-direction: column;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 /* Perfil de usuario compacto */
@@ -552,6 +635,9 @@ nav ul li a i {
 .container {
     margin-left: 270px;
     width: calc(100% - 290px);
+    /* Eliminada la altura mínima para permitir el desplazamiento natural */
+    margin-right: auto; /* Centrar horizontalmente */
+    padding-bottom: 20px; /* Agregar espacio al final */
 }
 
 /* Responsive para la barra lateral */
@@ -585,19 +671,39 @@ nav ul li a i {
 }
 
 @media (max-width: 480px) {
+    body {
+        flex-direction: column;
+        padding-bottom: 50px; /* Reducido aún más el espacio para la barra de navegación */
+        overflow-y: auto;
+        height: auto; /* Permitir que el cuerpo se expanda según el contenido */
+        padding-left: 10px; /* Reducido el padding lateral */
+        padding-right: 10px; /* Reducido el padding lateral */
+        padding-bottom: 40px;
+    }
+    
     nav {
-        width: 100%;
+        width: 85%; /* Reducido aún más el ancho */
         height: auto;
-        position: relative;
-        padding: 10px;
-        margin-bottom: 15px;
+        position: fixed; /* Cambiado a fixed para que se mantenga en la parte inferior */
+        bottom: 15px;
+        left: 7.5%; /* Centrado al reducir el ancho */
+        right: 7.5%; /* Centrado al reducir el ancho */
+        top: auto;
+        padding: 10px 5px; /* Reducido el padding */
+        margin-bottom: 0;
         flex-direction: row;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        border-right: none;
+        border-radius: 20px;
+        box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.2);
+        z-index: 1001;
     }
     
     nav ul {
         display: flex;
-        justify-content: space-around;
+        justify-content: center; /* Cambiado de space-around a space-between */
         width: 100%;
+        padding: 0 5px; /* Añadido padding horizontal */
     }
     
     nav ul li {
@@ -605,21 +711,30 @@ nav ul li a i {
     }
     
     nav ul li a {
-        padding: 10px;
+        padding: 8px 3px;
         flex-direction: column;
         text-align: center;
         border-left: none;
         border-bottom: 3px solid transparent;
+        font-size: 11px;
     }
     
     nav ul li a:hover {
         border-left: none;
         border-bottom: 3px solid rgba(34, 197, 94, 0.8);
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 10px;
     }
     
     nav ul li a i {
         margin-right: 0;
-        margin-bottom: 5px;
+        margin-bottom: 3px;
+        font-size: 14px;
+    }
+    
+    nav ul li a span {
+        display: block;
+        font-size: 9px;
     }
     
     .nav-category {
@@ -629,7 +744,17 @@ nav ul li a i {
     .container {
         margin-left: 0;
         width: 100%;
+        padding-bottom: 60px; /* Ajustado el espacio para la barra de navegación inferior */
+        flex: 1;
+        order: 1;
+        overflow-y: visible; /* Cambiado a visible para permitir el desplazamiento natural */
+        height: auto; /* Permitir que el contenedor se expanda según el contenido */
+        min-height: initial; /* Eliminar altura mínima que podría estar causando problemas */
+        padding-left: 15px; /* Añadido padding lateral */
+        padding-right: 15px; /* Añadido padding lateral */
     }
+    
+    /* Eliminado el padding-bottom duplicado del body */
 }
 
 /* Estilos para el perfil de usuario compacto */

@@ -5,6 +5,8 @@ import requests
 import json
 from datetime import datetime
 import pytz
+import smtplib
+from email.mime.text import MIMEText
 
 app = Flask(__name__)
 THINGSPEAK_URL, app.secret_key = 'https://thingspeak.mathworks.com/channels/3000780/field/1.json','https://thingspeak.mathworks.com/channels/3000780/field/1.json'  # Cambia esto por una clave secreta segura
@@ -163,8 +165,86 @@ def water_level():
 @login_required
 def history():
     """Página de historial"""
-    # Esta ruta se implementará más adelante
-    return render_template('dashboard.html', username=session.get('username'))
+    return render_template('history.html', username=session.get('username'))
+
+@app.route('/config')
+@login_required
+def config():
+    """Página de configuración de usuario"""
+    return render_template('config.html', username=session.get('username'))
+
+@app.route('/update_profile', methods=['POST'])
+@login_required
+def update_profile():
+    """Actualizar perfil de usuario"""
+    # En una aplicación real, aquí guardarías los datos en una base de datos
+    email = request.form.get('email')
+    phone = request.form.get('phone')
+    
+    # Simulamos una actualización exitosa
+    flash('Perfil actualizado correctamente', 'success')
+    return redirect(url_for('config'))
+
+
+
+@app.route('/update_password', methods=['POST'])
+@login_required
+def update_password():
+    """Cambiar contraseña de usuario"""
+    username = session.get('username')
+    current_password = request.form.get('current_password')
+    new_password = request.form.get('new_password')
+    confirm_password = request.form.get('confirm_password')
+    
+    # Verificar que la contraseña actual sea correcta
+    if username not in USERS or USERS[username] != current_password:
+        flash('La contraseña actual es incorrecta', 'error')
+        return redirect(url_for('config'))
+    
+    # Verificar que las nuevas contraseñas coincidan
+    if new_password != confirm_password:
+        flash('Las nuevas contraseñas no coinciden', 'error')
+        return redirect(url_for('config'))
+    
+    # En una aplicación real, aquí actualizarías la contraseña en la base de datos
+    # Por ahora, actualizamos el diccionario de usuarios (solo para demo)
+    USERS[username] = new_password
+    
+    flash('Contraseña actualizada correctamente', 'success')
+    return redirect(url_for('config'))
+
+# Envio de correos
+@app.route('/send_email', methods=['POST'])
+def send_email():
+    name = request.form.get('name')
+    email = request.form.get('email')
+    message = request.form.get('message')
+
+    # Configuración del servidor SMTP
+    smtp_server = 'smtp.gmail.com'
+    smtp_port = 587
+    smtp_username = 'contactofloppy@gmail.com'
+    smtp_password = 'floppy123'
+
+    # Crear el mensaje de correo
+    msg = MIMEText(message)
+    msg['Subject'] = 'Nuevo mensaje de contacto'
+    msg['From'] = email
+    msg['To'] = smtp_username
+
+    # Enviar el correo
+    try:
+        with smtplib.SMTP(smtp_server, smtp_port) as server:
+            server.starttls()
+            server.login(smtp_username, smtp_password)
+            server.send_message(msg)
+        flash('Correo enviado correctamente', 'success')
+    except Exception as e:
+        flash(f'Error al enviar el correo: {str(e)}', 'error')
+        return redirect(url_for('landing'))
+
+    return redirect(url_for('landing'))
+
 
 if __name__ == '__main__':
     app.run(debug=True)

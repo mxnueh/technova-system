@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Floppy | Configuración</title>
+    <link rel="icon" href="{{ url_for('static', filename='../static/img/tech_2.jpg') }}" type="image/jpg">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../static/css/dashboard.css" type="text/css">
+    <style>
+        .config-section {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .config-section h3 {
+            color: rgba(34, 197, 94, 0.8);
+            margin-bottom: 16px;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .config-section h3 i {
+            margin-right: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 500;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: rgba(34, 197, 94, 0.8);
+            box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.2);
+        }
+        
+        .input-container {
+            position: relative;
+        }
+        
+        .input-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .input-with-icon {
+            padding-left: 48px;
+        }
+        
+        .password-toggle {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .btn-primary {
+            background: rgba(34, 197, 94, 0.8);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: rgba(34, 197, 94, 1);
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .btn i {
+            margin-right: 8px;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+        
+        .alert {
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .alert i {
+            margin-right: 12px;
+            font-size: 20px;
+        }
+        
+        .alert-success {
+            background: rgba(34, 197, 94, 0.2);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: rgba(34, 197, 94, 0.9);
+        }
+        
+        .alert-error {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: rgba(239, 68, 68, 0.9);
+        }
+        
+        .alert-info {
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            color: rgba(59, 130, 246, 0.9);
+        }
+        
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+        
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.3);
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: rgba(34, 197, 94, 0.8);
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+        
+        .toggle-label {
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body style="background-color: #000; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+    <!-- Sidebar Navegation -->
+    <nav>
+        <!-- Perfil de Usuario Compacto -->
+        <div class="sidebar-profile">
+            <div class="profile-image">
+                <!-- Si hay una imagen de usuario disponible -->
+                <!-- <img src="{{ url_for('static', filename='img/user-avatar.jpg') }}" alt="Foto de perfil"> -->
+                <!-- Si no hay imagen, mostrar un icono -->
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="profile-info">
+                <div class="profile-name">{{ username }}</div>
+                <div class="profile-title">Monitor de Nivel de Agua</div>
+            </div>
+        </div>
+        
+        <!-- Menú Principal -->
+        <ul>
+            <li><a href="/dashboard"><i class="fas fa-home"></i> <span>Inicio</span></a></li>
+        </ul>
+        
+        <!-- Categoría: Monitoreo -->
+        <div class="nav-category">Monitoreo</div>
+        <ul>
+            <li><a href="/water-level"><i class="fas fa-water"></i> <span>Nivel del Agua</span></a></li>
+        </ul>
+
+        <!-- Separando de la ul de arriba -->
+        <ul>
+            <li><a href="/history"><i class="fas fa-history"></i> <span>Historial</span></a></li>
+        </ul>
+        
+        <!-- Categoría: Cuenta -->
+        <div class="nav-category">Cuenta</div>
+        <ul>
+            <li><a href="/config" style="background: rgba(255, 255, 255, 0.1); color: white; border-left: 3px solid rgba(34, 197, 94, 0.8);"><i class="fas fa-cog"></i> <span>Configuración</span></a></li>
+        </ul>
+
+        <!-- Botón de Cerrar Sesión -->
+        <ul>
+            <li><a href="/logout"><i class="fas fa-sign-out-alt"></i> <span>Cerrar Sesión</span></a></li>
+        </ul>
+    </nav>
+
+    <!-- Contenido Principal -->
+    <div class="container" style="margin-top: 20px; margin-bottom: 20px;">
+        <div class="header">
+            <div class="logo-container">
+                <div class="logo">
+                    <i class="fas fa-cog"></i>
+                </div>
+                <h1 class="title">Configuración</h1>
+            </div>
+        </div>
+
+        <!-- Flask Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        <i class="fas {% if category == 'success' %}fa-check-circle{% elif category == 'error' %}fa-exclamation-circle{% else %}fa-info-circle{% endif %}"></i>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Sección de Perfil de Usuario -->
+        <div class="config-section">
+            <h3><i class="fas fa-user-circle"></i> Perfil de Usuario</h3>
+            <form id="profileForm" method="POST" action="/update_profile">
+                <div class="form-group">
+                    <label class="form-label" for="username">Nombre de Usuario</label>
+                    <div class="input-container">
+                        <i class="fas fa-user input-icon"></i>
+                        <input type="text" id="username" name="username" class="form-input input-with-icon" value="{{ username }}" readonly>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="email">Correo Electrónico</label>
+                    <div class="input-container">
+                        <i class="fas fa-envelope input-icon"></i>
+                        <input type="email" id="email" name="email" class="form-input input-with-icon" placeholder="Ingresa tu correo electrónico">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="phone">Teléfono</label>
+                    <div class="input-container">
+                        <i class="fas fa-phone input-icon"></i>
+                        <input type="tel" id="phone" name="phone" class="form-input input-with-icon" placeholder="Ingresa tu número de teléfono">
+                    </div>
+                </div>
+                
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Sección de Cambio de Contraseña -->
+        <div class="config-section">
+            <h3><i class="fas fa-lock"></i> Cambiar Contraseña</h3>
+            <form id="passwordForm" method="POST" action="/update_password">
+                <div class="form-group">
+                    <label class="form-label" for="current_password">Contraseña Actual</label>
+                    <div class="input-container">
+                        <i class="fas fa-lock input-icon"></i>
+                        <input type="password" id="current_password" name="current_password" class="form-input input-with-icon" placeholder="Ingresa tu contraseña actual" required>
+                        <button type="button" class="password-toggle" id="toggleCurrentPassword">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="new_password">Nueva Contraseña</label>
+                    <div class="input-container">
+                        <i class="fas fa-lock input-icon"></i>
+                        <input type="password" id="new_password" name="new_password" class="form-input input-with-icon" placeholder="Ingresa tu nueva contraseña" required>
+                        <button type="button" class="password-toggle" id="toggleNewPassword">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="confirm_password">Confirmar Contraseña</label>
+                    <div class="input-container">
+                        <i class="fas fa-lock input-icon"></i>
+                        <input type="password" id="confirm_password" name="confirm_password" class="form-input input-with-icon" placeholder="Confirma tu nueva contraseña" required>
+                        <button type="button" class="password-toggle" id="toggleConfirmPassword">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-key"></i> Cambiar Contraseña</button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Sección de Preferencias del Sistema -->
+        <div class="config-section">
+            <h3><i class="fas fa-sliders-h"></i> Preferencias del Sistema</h3>
+            
+            <div class="toggle-container">
+                <span class="toggle-label">Notificaciones por Correo</span>
+                <label class="switch">
+                    <input type="checkbox" id="email_notifications" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            
+            <div class="toggle-container">
+                <span class="toggle-label">Notificaciones por SMS</span>
+                <label class="switch">
+                    <input type="checkbox" id="sms_notifications">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            
+            <div class="toggle-container">
+                <span class="toggle-label">Alertas de Nivel Crítico</span>
+                <label class="switch">
+                    <input type="checkbox" id="critical_alerts" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="refresh_interval">Intervalo de Actualización (segundos)</label>
+                <input type="number" id="refresh_interval" name="refresh_interval" class="form-input" value="30" min="5" max="300">
+            </div>
+            
+            <div class="btn-group">
+                <button type="button" id="savePreferences" class="btn btn-primary"><i class="fas fa-save"></i> Guardar Preferencias</button>
+                <button type="button" id="resetPreferences" class="btn btn-secondary"><i class="fas fa-undo"></i> Restablecer</button>
+            </div>
+        </div>
+        
+        <!-- Sección de Configuración de ThingSpeak -->
+        <div class="config-section">
+            <h3><i class="fas fa-cloud"></i> Configuración de ThingSpeak</h3>
+            
+            <div class="form-group">
+                <label class="form-label" for="channel_id">ID del Canal</label>
+                <input type="text" id="channel_id" name="channel_id" class="form-input" value="3000780" readonly>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="read_api_key">API Key de Lectura</label>
+                <div class="input-container">
+                    <input type="text" id="read_api_key" name="read_api_key" class="form-input" placeholder="Ingresa tu API Key de lectura">
+                    <button type="button" class="password-toggle" id="toggleReadApiKey">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="btn-group">
+                <button type="button" id="saveApiSettings" class="btn btn-primary"><i class="fas fa-save"></i> Guardar Configuración</button>
+                <button type="button" id="testConnection" class="btn btn-secondary"><i class="fas fa-plug"></i> Probar Conexión</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Toggle password visibility
+        function setupPasswordToggle(toggleId, inputId) {
+            const toggleBtn = document.getElementById(toggleId);
+            const input = document.getElementById(inputId);
+            
+            if (toggleBtn && input) {
+                toggleBtn.addEventListener('click', function() {
+                    if (input.type === 'password') {
+                        input.type = 'text';
+                        this.innerHTML = '<i class="fas fa-eye-slash"></i>';
+                    } else {
+                        input.type = 'password';
+                        this.innerHTML = '<i class="fas fa-eye"></i>';
+                    }
+                });
+            }
+        }
+        
+        // Setup all password toggles
+        document.addEventListener('DOMContentLoaded', function() {
+            setupPasswordToggle('toggleCurrentPassword', 'current_password');
+            setupPasswordToggle('toggleNewPassword', 'new_password');
+            setupPasswordToggle('toggleConfirmPassword', 'confirm_password');
+            setupPasswordToggle('toggleReadApiKey', 'read_api_key');
+            
+            // Password validation
+            const passwordForm = document.getElementById('passwordForm');
+            if (passwordForm) {
+                passwordForm.addEventListener('submit', function(e) {
+                    const newPassword = document.getElementById('new_password').value;
+                    const confirmPassword = document.getElementById('confirm_password').value;
+                    
+                    if (newPassword !== confirmPassword) {
+                        e.preventDefault();
+                        alert('Las contraseñas no coinciden');
+                    }
+                });
+            }
+            
+            // Save preferences
+            const savePreferencesBtn = document.getElementById('savePreferences');
+            if (savePreferencesBtn) {
+                savePreferencesBtn.addEventListener('click', function() {
+                    // Aquí iría el código para guardar las preferencias
+                    // Por ahora, solo mostraremos un mensaje
+                    alert('Preferencias guardadas correctamente');
+                });
+            }
+            
+            // Reset preferences
+            const resetPreferencesBtn = document.getElementById('resetPreferences');
+            if (resetPreferencesBtn) {
+                resetPreferencesBtn.addEventListener('click', function() {
+                    document.getElementById('email_notifications').checked = true;
+                    document.getElementById('sms_notifications').checked = false;
+                    document.getElementById('critical_alerts').checked = true;
+                    document.getElementById('refresh_interval').value = 30;
+                });
+            }
+            
+            // Save API settings
+            const saveApiSettingsBtn = document.getElementById('saveApiSettings');
+            if (saveApiSettingsBtn) {
+                saveApiSettingsBtn.addEventListener('click', function() {
+                    // Aquí iría el código para guardar la configuración de API
+                    // Por ahora, solo mostraremos un mensaje
+                    alert('Configuración de API guardada correctamente');
+                });
+            }
+            
+            // Test connection
+            const testConnectionBtn = document.getElementById('testConnection');
+            if (testConnectionBtn) {
+                testConnectionBtn.addEventListener('click', function() {
+                    // Aquí iría el código para probar la conexión
+                    // Por ahora, solo mostraremos un mensaje
+                    alert('Conexión exitosa con ThingSpeak');
+                });
+            }
+        });
+    </script>
+</body>
+</html>

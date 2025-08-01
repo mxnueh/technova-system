@@ -9,7 +9,8 @@ import smtplib
 from email.mime.text import MIMEText
 
 app = Flask(__name__)
-THINGSPEAK_URL, app.secret_key = 'https://thingspeak.mathworks.com/channels/3000780/field/1.json','https://thingspeak.mathworks.com/channels/3000780/field/1.json'  # Cambia esto por una clave secreta segura
+THINGSPEAK_URL = 'https://thingspeak.mathworks.com/channels/3000780/field/2.json'
+app.secret_key = 'your-secret-key-here'  # Cambia esto por una clave secreta segura
 
 # Credenciales de usuario (en producción, usa una base de datos)
 USERS = {
@@ -96,10 +97,10 @@ def dashboard():
     # Preparar datos para el gráfico
     chart_data = []
     for feed in feeds:
-        if feed.get('field1'):
+        if feed.get('field2'):
             chart_data.append({
                 'timestamp': feed['created_at'],
-                'value': float(feed['field1']),
+                'value': float(feed['field2']),
                 'formatted_time': format_timestamp(feed['created_at'])
             })
    
@@ -134,14 +135,51 @@ def check_auth():
         'username': session.get('username', '')
     })
 
-def get_thingspeak_data():
-    """Obtiene los datos de ThingSpeak"""
+def get_thingspeak_data(results=200):
+    """Obtiene los datos de ThingSpeak con manejo mejorado de errores"""
     try:
-        response = requests.get(THINGSPEAK_URL)
+        url = f"{THINGSPEAK_URL}?results={results}"
+        response = requests.get(url, timeout=10)
         response.raise_for_status()
-        return response.json()
+        
+        data = response.json()
+        
+        # Validar que los datos tengan la estructura esperada
+        if not data or 'feeds' not in data:
+            print("Error: Estructura de datos inválida de ThingSpeak")
+            return None
+            
+        # Filtrar feeds con datos válidos en field2
+        valid_feeds = []
+        for feed in data.get('feeds', []):
+            if feed.get('field2') is not None and feed.get('field2') != '':
+                try:
+                    # Validar que field2 sea un número válido
+                    float(feed['field2'])
+                    valid_feeds.append(feed)
+                except (ValueError, TypeError):
+                    continue
+        
+        data['feeds'] = valid_feeds
+        return data
+        
+    except requests.exceptions.Timeout:
+        print("Error: Timeout al conectar con ThingSpeak")
+        return None
+    except requests.exceptions.ConnectionError:
+        print("Error: No se pudo conectar con ThingSpeak")
+        return None
+    except requests.exceptions.HTTPError as e:
+        print(f"Error HTTP al obtener datos: {e}")
+        return None
     except requests.RequestException as e:
-        print(f"Error al obtener datos: {e}")
+        print(f"Error al obtener datos de ThingSpeak: {e}")
+        return None
+    except json.JSONDecodeError:
+        print("Error: Respuesta inválida de ThingSpeak (no es JSON válido)")
+        return None
+    except Exception as e:
+        print(f"Error inesperado al obtener datos: {e}")
         return None
 
 def format_timestamp(timestamp_str):

@@ -153,7 +153,7 @@
     <script>
         let thingSpeakData = [];
         let channelId = '3000780';
-        let fieldNumber = 1;
+        let fieldNumber = 2;
 
         // Water level thresholds (adjust these according to your needs)
         const THRESHOLDS = {
@@ -176,37 +176,83 @@
         async function loadThingSpeakData() {
             try {
                 const resultsCount = 50; // Obtener los últimos 50 resultados
-                const url = `https://api.thingspeak.com/channels/${channelId}/fields/${fieldNumber}.json?results=${resultsCount}`;
+                const url = `/api/thingspeak-data?results=${resultsCount}`;
                 
-                const response = await fetch(url);
+                console.log('Fetching data from proxy endpoint:', url);
+                
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    timeout: 10000
+                });
                 
                 if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                    throw new Error(`Error HTTP ${response.status}: ${response.statusText}`);
                 }
                 
                 const data = await response.json();
+                console.log('ThingSpeak response from proxy:', data);
                 
-                if (data.feeds && data.feeds.length > 0) {
-                    processThingSpeakData(data);
-                    updateDashboard();
-                } else {
-                    console.log('No se encontraron datos en el canal');
-                    // Load sample data as fallback when no data is found
-                    loadSampleData();
+                // Validar estructura de datos
+                if (!data || typeof data !== 'object') {
+                    throw new Error('Respuesta inválida de ThingSpeak');
                 }
+                
+                if (!data.feeds || !Array.isArray(data.feeds)) {
+                    throw new Error('No se encontró el array de feeds en la respuesta');
+                }
+                
+                if (data.feeds.length === 0) {
+                    throw new Error('No se encontraron datos en el canal');
+                }
+                
+                // Validar que al menos algunos feeds tengan datos válidos
+                const validFeeds = data.feeds.filter(feed => 
+                    feed && feed.field2 !== null && feed.field2 !== undefined && feed.field2 !== ''
+                );
+                
+                if (validFeeds.length === 0) {
+                    throw new Error('No se encontraron datos válidos en field2');
+                }
+                
+                console.log(`Datos válidos encontrados: ${validFeeds.length} de ${data.feeds.length}`);
+                
+                processThingSpeakData(data);
+                updateDashboard();
+                
             } catch (error) {
                 console.error('Error loading ThingSpeak data:', error);
+                
+                let errorMessage = 'Error desconocido';
+                if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                    errorMessage = 'Error de conexión. Verifique su conexión a internet.';
+                } else if (error.message.includes('HTTP 404')) {
+                    errorMessage = 'Endpoint no encontrado. Verifique la configuración del servidor.';
+                } else if (error.message.includes('HTTP 403')) {
+                    errorMessage = 'Acceso denegado. Verifique su sesión.';
+                } else if (error.message.includes('timeout')) {
+                    errorMessage = 'Tiempo de espera agotado. Intente nuevamente.';
+                } else {
+                    errorMessage = error.message;
+                }
+                
+                console.error('Error al cargar datos:', errorMessage);
+                
                 // Load sample data as fallback
+                console.log('Cargando datos de muestra como respaldo...');
                 loadSampleData();
             }
         }
 
         function processThingSpeakData(data) {
             thingSpeakData = data.feeds
-                .filter(feed => feed.field1 !== null && feed.field1 !== undefined)
+                .filter(feed => feed.field2 !== null && feed.field2 !== undefined)
                 .map(feed => ({
                     timestamp: new Date(feed.created_at),
-                    level: parseFloat(feed.field1),
+                    level: parseFloat(feed.field2),
                     entry_id: feed.entry_id
                 }));
 

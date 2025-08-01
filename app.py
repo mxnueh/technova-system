@@ -161,6 +161,18 @@ def water_level():
     """Página de monitoreo de nivel de agua"""
     return render_template('water-level.html', username=session.get('username'))
 
+@app.route('/api/thingspeak-data')
+@login_required
+def thingspeak_data():
+    """Endpoint proxy para obtener datos de ThingSpeak sin problemas de CORS"""
+    results = request.args.get('results', 200, type=int)
+    data = get_thingspeak_data(results)
+    
+    if not data:
+        return jsonify({'error': 'No se pudieron obtener datos de ThingSpeak'}), 500
+    
+    return jsonify(data)
+
 @app.route('/history')
 @login_required
 def history():

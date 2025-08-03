@@ -11,6 +11,79 @@ body {
     overflow-x: hidden;
 }
 
+/* Flash Messages */
+.flash-messages {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 500px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.flash-message {
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    animation: slideDown 0.3s ease-out forwards;
+}
+
+.flash-message.success {
+    background-color: rgba(46, 160, 67, 0.95);
+    border-left: 4px solid #2ea043;
+}
+
+.flash-message.error {
+    background-color: rgba(218, 54, 51, 0.95);
+    border-left: 4px solid #da3633;
+}
+
+.flash-message.info {
+    background-color: rgba(56, 139, 253, 0.95);
+    border-left: 4px solid #388bfd;
+}
+
+.flash-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.flash-content span {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.close-flash {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+}
+
+.close-flash:hover {
+    opacity: 1;
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
 .container {
     max-width: 1200px;
     margin: 0 auto;

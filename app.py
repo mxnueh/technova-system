@@ -266,34 +266,64 @@ def update_password():
 # Envio de correos
 @app.route('/send_email', methods=['POST'])
 def send_email():
-    name = request.form.get('name')
-    email = request.form.get('email')
-    message = request.form.get('message')
-
-    # Configuración del servidor SMTP
-    smtp_server = 'smtp.gmail.com'
-    smtp_port = 587
-    smtp_username = 'contactofloppy@gmail.com'
-    smtp_password = 'floppy123'
-
-    # Crear el mensaje de correo
-    msg = MIMEText(message)
-    msg['Subject'] = 'Nuevo mensaje de contacto'
-    msg['From'] = email
-    msg['To'] = smtp_username
-
-    # Enviar el correo
     try:
-        with smtplib.SMTP(smtp_server, smtp_port) as server:
-            server.starttls()
-            server.login(smtp_username, smtp_password)
-            server.send_message(msg)
-        flash('Correo enviado correctamente', 'success')
-    except Exception as e:
-        flash(f'Error al enviar el correo: {str(e)}', 'error')
-        return redirect(url_for('landing'))
+        # Obtener datos del formulario con validación
+        name = request.form.get('name', '').strip()
+        email = request.form.get('email', '').strip()
+        subject = request.form.get('subject', 'Nuevo mensaje de contacto').strip()
+        company = request.form.get('company', '').strip()
+        message = request.form.get('message', '').strip()
+        
+        # Validar campos requeridos
+        if not name or not email or not message:
+            flash('Por favor complete todos los campos requeridos', 'error')
+            return redirect(url_for('landing_page'))
+            
+        # Validar formato de correo electrónico básico
+        if '@' not in email or '.' not in email:
+            flash('Por favor ingrese un correo electrónico válido', 'error')
+            return redirect(url_for('landing_page'))
 
-    return redirect(url_for('landing'))
+        # Configuración del servidor SMTP
+        smtp_server = 'smtp.gmail.com'
+        smtp_port = 587
+        smtp_username = 'enmanuelnunezmatias@gmail.com'
+        smtp_password = 'ldwi ptqa qrpw tgsn'
+
+        # Crear el mensaje de correo con formato mejorado
+        message_body = f"""Nombre: {name}
+        Email: {email}
+        Empresa: {company}
+        
+        Mensaje:
+        {message}
+        """
+        
+        msg = MIMEText(message_body)
+        msg['Subject'] = subject
+        msg['From'] = smtp_username  # Usar el correo del remitente SMTP para evitar problemas de autenticación
+        msg['Reply-To'] = email  # Agregar Reply-To para que las respuestas vayan al contacto
+        msg['To'] = smtp_username
+
+        # Enviar el correo con manejo de errores específicos
+        try:
+            with smtplib.SMTP(smtp_server, smtp_port) as server:
+                server.starttls()
+                server.login(smtp_username, smtp_password)
+                server.send_message(msg)
+            flash('¡Mensaje enviado correctamente! Nos pondremos en contacto pronto.', 'success')
+        except smtplib.SMTPAuthenticationError:
+            flash('Error de autenticación con el servidor de correo. Por favor contacte al administrador.', 'error')
+        except smtplib.SMTPException as e:
+            flash(f'Error al enviar el correo: {str(e)}', 'error')
+        except Exception as e:
+            flash('Ocurrió un error inesperado. Por favor intente más tarde.', 'error')
+            print(f"Error en envío de correo: {str(e)}")  # Log para depuración
+    except Exception as e:
+        flash('Ocurrió un error al procesar su solicitud. Por favor intente nuevamente.', 'error')
+        print(f"Error general en send_email: {str(e)}")  # Log para depuración
+        
+    return redirect(url_for('landing_page'))
 
 
 if __name__ == '__main__':

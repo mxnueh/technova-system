@@ -398,33 +398,6 @@
                 <button type="button" id="resetPreferences" class="btn btn-secondary"><i class="fas fa-undo"></i> Restablecer</button>
             </div>
         </div>
-        
-        <!-- Sección de Configuración de ThingSpeak -->
-        <div class="config-section">
-            <h3><i class="fas fa-cloud"></i> Configuración de ThingSpeak</h3>
-            
-            <div class="form-group">
-                <label class="form-label" for="channel_id">ID del Canal</label>
-                <input type="text" id="channel_id" name="channel_id" class="form-input" value="3000780" readonly>
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label" for="read_api_key">API Key de Lectura</label>
-                <div class="input-container">
-                    <input type="text" id="read_api_key" name="read_api_key" class="form-input" placeholder="Ingresa tu API Key de lectura">
-                    <button type="button" class="password-toggle" id="toggleReadApiKey">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                </div>
-            </div>
-            
-            <div class="btn-group">
-                <button type="button" id="saveApiSettings" class="btn btn-primary"><i class="fas fa-save"></i> Guardar Configuración</button>
-                <button type="button" id="testConnection" class="btn btn-secondary"><i class="fas fa-plug"></i> Probar Conexión</button>
-            </div>
-        </div>
-    </div>
-
     <script>
         // Toggle password visibility
         function setupPasswordToggle(toggleId, inputId) {

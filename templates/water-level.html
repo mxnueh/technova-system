@@ -7,6 +7,25 @@
     <link rel="stylesheet" href="/static/css/dashboard.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Estilos para los diferentes niveles de agua */
+        .critical-low { color: #10B981; }
+        .warning-low { color: #22C55E; }
+        .normal-min { color: #059669; } /* Verde oscuro en lugar de azul */
+        .normal-max { color: #34D399; } /* Verde claro en lugar de morado */
+        .warning-high { color: #F59E0B; }
+        .critical-high { color: #EF4444; }
+        
+        /* Estilos para las etiquetas de estado en la tabla */
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            color: white;
+            font-weight: 500;
+            font-size: 0.85rem;
+            display: inline-block;
+        }
+    </style>
 </head>
 <body>
     <!-- Sidebar Navigation -->
@@ -104,7 +123,7 @@
         <div class="chart-section">
             <div class="chart-header">
                 <div class="chart-title-wrapper">
-                    <div class="chart-indicator" style="background: rgba(34, 197, 94, 0.8);"></div>
+                    <div class="chart-indicator" style="background: #059669;"></div>
                     <h3 class="chart-title">Nivel de Agua (m)</h3>
                 </div>
                 <div class="chart-controls">
@@ -123,7 +142,7 @@
         <div class="chart-section">
             <div class="chart-header">
                 <div class="chart-title-wrapper">
-                    <div class="chart-indicator" style="background: rgba(34, 197, 94, 0.8);"></div>
+                    <div class="chart-indicator" style="background: #059669;"></div>
                     <h3 class="chart-title">Últimas Lecturas</h3>
                 </div>
             </div>
@@ -185,10 +204,10 @@
                 data: {
                     labels: [],
                     datasets: [{
-                        label: 'Nivel de Agua (m)',
+                        label: 'Nivel de Agua (m)', 
                         data: [],
-                        borderColor: 'rgba(34, 197, 94, 0.8)',
-                        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                        borderColor: '#059669',
+                        backgroundColor: 'rgba(5, 150, 105, 0.1)',
                         borderWidth: 2,
                         fill: true,
                         tension: 0.4,
@@ -402,7 +421,7 @@
             // Update status and styling
             let status;
             if (isInactive) {
-                status = { text: 'Inactivo', class: 'critical' };
+                status = { text: 'Inactivo', class: 'critical-high', color: '#EF4444' };
                 // Update connection status in alert
                 showAlert('error', 'Sistema desconectado: Los sensores están apagados');
             } else {
@@ -420,6 +439,8 @@
             const indicator = document.getElementById('levelIndicator');
             indicator.style.width = `${percentage}%`;
             indicator.className = `water-level-fill ${status.class}`;
+            indicator.style.backgroundColor = status.color;
+            indicator.style.transition = 'background-color 0.5s ease, width 0.5s ease';
         }
         
         function checkIfSystemInactive(data) {
@@ -430,15 +451,17 @@
 
         function getWaterLevelStatus(level) {
             if (level <= THRESHOLDS.CRITICAL_LOW) {
-                return { text: 'Crítico Bajo', class: 'critical' };
+                return { text: 'Crítico Bajo', class: 'critical-low', color: '#10B981' };
             } else if (level <= THRESHOLDS.WARNING_LOW) {
-                return { text: 'Bajo', class: 'warning' };
-            } else if (level >= THRESHOLDS.CRITICAL_HIGH) {
-                return { text: 'Crítico Alto', class: 'critical' };
-            } else if (level >= THRESHOLDS.WARNING_HIGH) {
-                return { text: 'Alto', class: 'warning' };
+                return { text: 'Bajo', class: 'warning-low', color: '#22C55E' };
+            } else if (level <= THRESHOLDS.NORMAL_MIN) {
+                return { text: 'Normal Bajo', class: 'normal-min', color: '#059669' };
+            } else if (level <= THRESHOLDS.NORMAL_MAX) {
+                return { text: 'Normal', class: 'normal-max', color: '#34D399' };
+            } else if (level <= THRESHOLDS.WARNING_HIGH) {
+                return { text: 'Alto', class: 'warning-high', color: '#F59E0B' };
             } else {
-                return { text: 'Normal', class: 'normal' };
+                return { text: 'Crítico Alto', class: 'critical-high', color: '#EF4444' };
             }
         }
 
@@ -447,12 +470,17 @@
             const value = document.getElementById(valueId);
             
             // Remove existing classes
-            card.classList.remove('critical', 'warning', 'normal');
-            value.classList.remove('critical', 'warning', 'normal');
+            card.classList.remove('critical-low', 'warning-low', 'normal-min', 'normal-max', 'warning-high', 'critical-high');
+            value.classList.remove('critical-low', 'warning-low', 'normal-min', 'normal-max', 'warning-high', 'critical-high');
             
             // Add new class
             card.classList.add(statusClass);
             value.classList.add(statusClass);
+            
+            // Set the color based on status
+            const status = getWaterLevelStatus(parseFloat(document.getElementById('currentLevel').textContent));
+            card.style.borderColor = status.color;
+            card.style.boxShadow = `0 4px 6px -1px ${status.color}40, 0 2px 4px -1px ${status.color}30`;
         }
 
         function updateChart() {
@@ -462,6 +490,15 @@
                 formatTimestamp(item.timestamp, currentTimeRange)
             );
             waterLevelChart.data.datasets[0].data = filteredData.map(item => item.level);
+            
+            // Actualizar el color del gráfico según el nivel actual
+            if (filteredData.length > 0) {
+                const currentLevel = filteredData[filteredData.length - 1].level;
+                const status = getWaterLevelStatus(currentLevel);
+                waterLevelChart.data.datasets[0].borderColor = status.color;
+                waterLevelChart.data.datasets[0].backgroundColor = `${status.color}20`; // Color con 20% de opacidad
+            }
+            
             waterLevelChart.update();
         }
 
@@ -477,7 +514,7 @@
                 row.innerHTML = `
                     <td>${item.timestamp.toLocaleString('es-ES')}</td>
                     <td>${item.level.toFixed(2)} m</td>
-                    <td><span class="status-badge ${status.class}">${status.text}</span></td>
+                    <td><span class="status-badge ${status.class}" style="background-color: ${status.color}">${status.text}</span></td>
                     <td>${item.entry_id}</td>
                 `;
                 tbody.appendChild(row);

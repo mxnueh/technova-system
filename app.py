@@ -10,7 +10,6 @@ from email.mime.text import MIMEText
 
 app = Flask(__name__)
 THINGSPEAK_URL = 'https://thingspeak.mathworks.com/channels/3000780/field/2.json'
-app.secret_key = 'your-secret-key-here'  # Cambia esto por una clave secreta segura
 
 # Credenciales de usuario (en producción, usa una base de datos)
 USERS = {
